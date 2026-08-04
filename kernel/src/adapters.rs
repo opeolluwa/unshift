@@ -1,19 +1,6 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(Debug, Deserialize)]
-pub struct User {
-    pub username: String,
-    pub password: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Pagination {
-    pub current_page: u16,
-    pub page_size: u16,
-}
-
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]

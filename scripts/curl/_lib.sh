@@ -11,7 +11,7 @@ if [[ -f "$REPO_ROOT/.env" ]]; then
 fi
 
 PORT="${PORT:-8000}"
-BASE_URL="http://localhost:$PORT"
+BASE_URL="http://localhost:$PORT/api"
 
 format_json() {
   if command -v jq >/dev/null 2>&1; then

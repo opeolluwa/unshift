@@ -41,6 +41,6 @@ release type:
     ./scripts/release.sh {{type}}
 
 
-[working-directory:"scripts"]
+[working-directory: "scripts"]
 bootstrap-topics:
-   sh  ./scripts/topics.sh
+    bash ./topics.sh
