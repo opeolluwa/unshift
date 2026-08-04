@@ -42,6 +42,7 @@ pub fn create_metadata_client() -> Result<BaseConsumer<DefaultConsumerContext>, 
 pub fn create_consumer() -> Result<BaseConsumer<DefaultConsumerContext>, AppError> {
     let mut config = create_client_config()?;
     config
+        .set("group.id", "unshift-console")
         .set("auto.offset.reset", "earliest")
         .set("enable.auto.commit", "false");
 

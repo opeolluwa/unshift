@@ -70,7 +70,7 @@ const columns: TableColumn<TopicSummary>[] = [
           to: `/topics/${encodeURIComponent(topic)}`,
           class: 'text-primary cursor-pointer hover:underline'
         },
-        topic
+        () => topic
       )
     }
   },
@@ -157,6 +157,6 @@ const showCreateTopic = ref(false)
       />
     </div>
 
-    <!-- <AppCreateTopicModal v-model:open="showCreateTopic" /> -->
+     <!-- <AppCreateTopicModal v-model:open="showCreateTopic" />  -->
   </div>
 </template>
