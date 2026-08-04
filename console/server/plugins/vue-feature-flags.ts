@@ -4,7 +4,7 @@
 // With NODE_ENV=production the guard no longer short-circuits, and the first
 // `createPinia()` throws a ReferenceError — which breaks prerendering and SSR.
 export default defineNitroPlugin(() => {
-  console.log("[DBG] nitro flags plugin ran")
+  console.log('[DBG] nitro flags plugin ran')
   const flags = globalThis as unknown as Record<string, unknown>
 
   flags.__VUE_OPTIONS_API__ ??= true
