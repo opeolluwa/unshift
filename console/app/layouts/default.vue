@@ -22,7 +22,7 @@
     </UHeader>
 
     <UMain>
-      <UContainer>
+      <UContainer class="pt-6">
         <slot />
       </UContainer>
     </UMain>

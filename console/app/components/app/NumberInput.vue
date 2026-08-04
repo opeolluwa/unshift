@@ -1,14 +1,16 @@
 <script setup lang="ts">
 defineProps<{
-  label: string
-  name: string
+  label?: string
+  name?: string
   placeholder?: string
   hint?: string
   disabled?: boolean
-  type?: string
+  min?: number
+  max?: number
+  step?: number
 }>()
 
-const model = defineModel<string | number>()
+const model = defineModel<number>()
 </script>
 
 <template>
@@ -23,11 +25,13 @@ const model = defineModel<string | number>()
       hint: ' mr-auto text-gray-400 dark:text-gray-600 font-normal ml-1'
     }"
   >
-    <UInput
+    <UInputNumber
       v-model="model"
       :disabled="disabled"
       :placeholder="placeholder"
-      :type="type"
+      :min="min"
+      :max="max"
+      :step="step"
       :ui="{ base: 'py-3 pl-4 bg-transparent' }"
       :class="[
         'w-full transition-colors',

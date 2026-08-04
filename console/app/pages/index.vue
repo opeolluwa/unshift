@@ -4,6 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 import type { TopicSummary } from '../bindings/TopicSummary'
 
 const UBadge = resolveComponent('UBadge')
+const NuxtLink = resolveComponent('NuxtLink')
 
 const kafkaStore = useKafkaStore()
 const { overview } = storeToRefs(kafkaStore)
@@ -64,11 +65,10 @@ const columns: TableColumn<TopicSummary>[] = [
     cell: ({ row }) => {
       const topic = row.getValue<string>('topic')
       return h(
-        'button',
+        NuxtLink,
         {
-          class: 'text-primary cursor-pointer hover:underline',
-          type: 'button',
-          onClick: () => kafkaStore.getTopic(topic)
+          to: `/topics/${encodeURIComponent(topic)}`,
+          class: 'text-primary cursor-pointer hover:underline'
         },
         topic
       )
@@ -119,29 +119,44 @@ const columns: TableColumn<TopicSummary>[] = [
 ]
 
 const globalFilter = ref('')
+const showCreateTopic = ref(false)
 </script>
 
 <template>
   <div class="flex flex-col flex-1 w-full gap-8">
-    <AppLeadingText>Kafka cluster overview</AppLeadingText>
+    <div class="flex flex-col gap-2">
+      <AppLeadingText>Kafka cluster overview</AppLeadingText>
 
-    <UTable
-      :data="overviewRows"
-      :columns="overviewColumns"
-    />
-
-    <AppLeadingText>Topics</AppLeadingText>
-    <div class="flex px-4 py-3.5 border-b border-accented">
-      <UInput
-        v-model="globalFilter"
-        class="max-w-sm"
-        placeholder="Filter..."
+      <UTable
+        :data="overviewRows"
+        :columns="overviewColumns"
       />
     </div>
-    <UTable
-      v-model:global-filter="globalFilter"
-      :data="data"
-      :columns="columns"
-    />
+
+    <div class="flex flex-col gap-2">
+      <AppLeadingText>Topics</AppLeadingText>
+      <div class="flex items-center justify-between gap-4 px-4 py-3.5 border-b border-accented">
+        <UInput
+          v-model="globalFilter"
+          class="max-w-sm"
+          placeholder="Filter..."
+        />
+
+        <AppButton
+          icon="i-lucide-plus"
+          size="lg"
+          @click="showCreateTopic = true"
+        >
+          Create topic
+        </AppButton>
+      </div>
+      <UTable
+        v-model:global-filter="globalFilter"
+        :data="data"
+        :columns="columns"
+      />
+    </div>
+
+    <AppCreateTopicModal v-model:open="showCreateTopic" />
   </div>
 </template>
