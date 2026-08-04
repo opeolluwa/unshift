@@ -7,8 +7,8 @@ use axum::{
 
 use crate::{
     adapters::{
-        AddTopicRequest, CreateTopicResponse, PublishMessageRequest, PublishResponse,
-        TopicResponse, TopicsResponse,
+        AddTopicRequest, ClusterOverviewResponse, CreateTopicResponse, PublishMessageRequest,
+        PublishResponse, TopicSummary, TopicsResponse,
     },
     errors::AppError,
     kafka::{connection::KafkaState, utils},
@@ -28,9 +28,17 @@ pub async fn handle_404() -> impl IntoResponse {
 pub async fn get_topics(
     State(state): State<KafkaState>,
 ) -> Result<Json<TopicsResponse>, AppError> {
-    let topics = utils::retrieve_topics(&state.metadata_client).await?;
+    let topics = utils::retrieve_topics(&state.metadata_client, &state.admin_client).await?;
 
     Ok(Json(TopicsResponse { topics }))
+}
+
+pub async fn get_cluster_overview(
+    State(state): State<KafkaState>,
+) -> Result<Json<ClusterOverviewResponse>, AppError> {
+    let overview = utils::retrieve_cluster_overview(&state.metadata_client).await?;
+
+    Ok(Json(overview))
 }
 
 pub async fn create_topic(
@@ -54,13 +62,10 @@ pub async fn create_topic(
 pub async fn get_topic(
     State(state): State<KafkaState>,
     Path(topic_name): Path<String>,
-) -> Result<Json<TopicResponse>, AppError> {
-    let partitions = utils::retrieve_topic(&state.metadata_client, &topic_name).await?;
+) -> Result<Json<TopicSummary>, AppError> {
+    let topic = utils::retrieve_topic(&state.metadata_client, &state.admin_client, &topic_name).await?;
 
-    Ok(Json(TopicResponse {
-        topic: topic_name,
-        partitions,
-    }))
+    Ok(Json(topic))
 }
 
 pub async fn publish_message(
