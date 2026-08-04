@@ -14,36 +14,36 @@
 <script setup lang="ts">
 defineProps({
   type: {
-    type: String as PropType<"button" | "submit" | "reset">,
-    default: "button",
+    type: String as PropType<'button' | 'submit' | 'reset'>,
+    default: 'button'
   },
   color: {
     type: String as PropType<
-      | "primary"
-      | "error"
-      | "secondary"
-      | "success"
-      | "info"
-      | "warning"
-      | "neutral"
+      | 'primary'
+      | 'error'
+      | 'secondary'
+      | 'success'
+      | 'info'
+      | 'warning'
+      | 'neutral'
     >,
-    default: "primary",
+    default: 'primary'
   },
   loading: {
     type: Boolean,
-    default: false,
+    default: false
   },
   disabled: {
     type: Boolean,
-    default: false,
+    default: false
   },
   error: {
     type: Boolean,
-    default: false,
+    default: false
   },
   size: {
-    type: String as PropType<"xs" | "sm" | "md" | "lg" | "xl">,
-    default: "sm",
-  },
-});
+    type: String as PropType<'xs' | 'sm' | 'md' | 'lg' | 'xl'>,
+    default: 'sm'
+  }
+})
 </script>

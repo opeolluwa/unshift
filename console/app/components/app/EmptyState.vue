@@ -1,18 +1,18 @@
 <script setup lang="ts">
 interface Props {
-  title: string;
-  description: string;
-  icon?: string;
-  actionLabel?: string;
+  title: string
+  description: string
+  icon?: string
+  actionLabel?: string
 }
 
 withDefaults(defineProps<Props>(), {
-  icon: "heroicons:users",
-});
+  icon: 'heroicons:users'
+})
 
 const emit = defineEmits<{
-  action: [];
-}>();
+  action: []
+}>()
 </script>
 
 <template>
@@ -20,7 +20,10 @@ const emit = defineEmits<{
     <div
       class="flex size-12 items-center justify-center rounded-2xl bg-primary-50/50 p-0.5 dark:bg-white/5"
     >
-      <UIcon :name="icon" class="size-8 text-gray-3 dark:text-white/20" />
+      <UIcon
+        :name="icon"
+        class="size-8 text-gray-3 dark:text-white/20"
+      />
     </div>
 
     <div>

@@ -1,18 +1,18 @@
 <script setup lang="ts">
 defineProps<{
-  label?: string;
-  icon?: string;
-  className?: string;
-  name?: string;
-  trailingIcon?: string;
-  placeholder?: string;
-  hint?: string;
-  avatar?: string;
-  disabled?: boolean;
-  items: string[] | { label: string; value: string }[];
-}>();
+  label?: string
+  icon?: string
+  className?: string
+  name?: string
+  trailingIcon?: string
+  placeholder?: string
+  hint?: string
+  avatar?: string
+  disabled?: boolean
+  items: string[] | { label: string, value: string }[]
+}>()
 
-const model = defineModel<string>();
+const model = defineModel<string>()
 </script>
 
 <template>
@@ -24,7 +24,7 @@ const model = defineModel<string>();
       error: 'text-red-500 mt-1',
       label: 'text-xs font-medium text-gray-600 dark:text-gray-400 capitalize',
       hint: 'mr-auto text-gray-400 dark:text-gray-600 font-normal ml-1',
-      root: 'lowercase',
+      root: 'lowercase'
     }"
   >
     <USelectMenu
@@ -38,13 +38,13 @@ const model = defineModel<string>();
       :placeholder="placeholder"
       :ui="{
         base: 'lowercase py-3',
-        trailingIcon: 'size-5',
+        trailingIcon: 'size-5'
       }"
       :class="[
         'w-full transition-colors first:capitalize bg-transparent ' + className,
         error
           ? 'border-red-500 focus-within:border-red-500'
-          : 'border-gray-300 dark:border-gray-600 focus-within:border-black dark:focus-within:border-gray-400',
+          : 'border-gray-300 dark:border-gray-600 focus-within:border-black dark:focus-within:border-gray-400'
       ]"
     />
   </UFormField>
