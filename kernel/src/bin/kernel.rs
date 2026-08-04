@@ -5,7 +5,7 @@ use std::net::{Ipv4Addr, SocketAddrV4};
 use kernel::{
     config::{env::load_env, logger::init_logger},
     errors::AppError,
-
+    kafka::connection::KafkaState,
     router,
 };
 
@@ -16,7 +16,9 @@ async fn main() -> Result<(), AppError> {
 
     init_logger(&config);
 
-    let app = router::routes().layer(tower_http::trace::TraceLayer::new_for_http());
+    let kafka_state = KafkaState::new()?;
+
+    let app = router::routes(kafka_state).layer(tower_http::trace::TraceLayer::new_for_http());
 
     let addr = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, config.port);
 
