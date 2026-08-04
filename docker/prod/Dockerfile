@@ -11,7 +11,16 @@ COPY console/ ./
 FROM rust:1.94.0-slim-bookworm AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config libssl-dev libcurl4-openssl-dev clang libclang-dev \
+    build-essential \
+    pkg-config \
+    cmake \
+    perl \
+    git \
+    libssl-dev \
+    zlib1g-dev \
+    libcurl4-openssl-dev \
+    clang \
+    libclang-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

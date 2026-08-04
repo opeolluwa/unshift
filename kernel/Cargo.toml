@@ -10,7 +10,7 @@ name="kernel"
 [dependencies]
 axum = { version = "0.8.9", features = ["macros", "tracing"] }
 dotenvy = "0.15.7"
-rdkafka = { version = "0.39.0", features = ["ssl", "curl"] }
+rdkafka = { version = "0.39.0", features = ["cmake-build"] }
 serde = { version = "1.0.229", features = ["derive"] }
 thiserror = "2.0.19"
 tokio = { version = "1.53.1", features = ["full"] }
