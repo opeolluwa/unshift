@@ -1,13 +1,14 @@
 use std::net::{Ipv4Addr, SocketAddrV4};
 
-use axum::Router;
+use axum::{Router, http::StatusCode};
 use kernel::{
-    config::{env::load_env, logger::init_logger},
+    config::{cors::init_cors, env::load_env, logger::init_logger},
     errors::AppError,
     handlers::handle_404,
     kafka::connection::KafkaState,
     router,
 };
+use tower_http::timeout::TimeoutLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
@@ -16,10 +17,17 @@ async fn main() -> Result<(), AppError> {
     init_logger(&config);
 
     let kafka_state = KafkaState::new()?;
+    let cors = init_cors(&config);
 
     let app = Router::new()
         .nest("/api", router::routes(kafka_state))
         .layer(tower_http::trace::TraceLayer::new_for_http())
+        .layer(TimeoutLayer::with_status_code(
+            StatusCode::REQUEST_TIMEOUT,
+            config.requests_time_out_secs,
+        ))
+        .layer(tower_http::trace::TraceLayer::new_for_http())
+        .layer(cors)
         .fallback(handle_404);
 
     let addr = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, config.port);

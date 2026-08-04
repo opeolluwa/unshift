@@ -1,6 +1,6 @@
-use crate::config::env::{AppEnv, Environment};
+use crate::config::env::{AppConfig, Environment};
 
-pub fn init_logger(config: &AppEnv) {
+pub fn init_logger(config: &AppConfig) {
     let log_levels = match config.environment {
         Environment::Development => tracing::Level::DEBUG,
         Environment::Production => tracing::Level::INFO,
