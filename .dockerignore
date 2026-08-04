@@ -1,0 +1,14 @@
+.git
+.github
+.gitignore
+.dockerignore
+
+console/.nuxt
+console/node_modules
+console/.output
+console/dist
+
+**/target
+**/*.md
+**/.env
+**/.env.*

@@ -1,0 +1,22 @@
+{
+  "name": "unshift",
+  "version": "0.1.0",
+  "description": "Kafka Event Producer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opeolluwa/unshift.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/opeolluwa/unshift/issues"
+  },
+  "homepage": "https://github.com/opeolluwa/unshift#readme"
+}
