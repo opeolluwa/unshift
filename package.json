@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/opeolluwa/unshift/issues"
   },
-  "homepage": "https://github.com/opeolluwa/unshift#readme"
+  "homepage": "https://github.com/opeolluwa/unshift#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
 }
