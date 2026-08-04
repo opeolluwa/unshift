@@ -8,11 +8,13 @@ RUN set -eux; \
         libgcc-s1 \
         libssl-dev \
         pkg-config \
+        libcurl4-openssl-dev \
         clang \
         libclang-dev \
         zlib1g-dev \
         llvm-dev \
-        build-essential; \
+        build-essential \
+        curl; \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash appuser
@@ -27,7 +29,7 @@ WORKDIR /app/kernel
 
 RUN cargo build
 
-RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser /app /cargo-target /usr/local/cargo
 
 USER appuser
 

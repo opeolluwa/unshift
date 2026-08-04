@@ -1,9 +1,27 @@
 
 
 cfg:
-    curl -fsSL https://get.pnpm.io/install.sh | sh - 
-    source /Users/$USER/.zshrc
-    cp .env.example .env
+    #!/usr/bin/env sh
+    set -e
+    if ! command -v pnpm >/dev/null 2>&1; then
+        echo "Installing pnpm..."
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+        source /Users/$USER/.zshrc
+    else
+        echo "pnpm is already installed"
+    fi
+    if ! command -v cargo-watch >/dev/null 2>&1; then
+        echo "Installing cargo-watch..."
+        cargo install cargo-watch
+    else
+        echo "cargo-watch is already installed"
+    fi
+    if [ ! -f .env ]; then
+        cp .env.example .env
+        echo "Created .env from .env.example"
+    else
+        echo ".env already exists, skipping"
+    fi
 
 [working-directory: "console"]
 run-console: 
@@ -11,7 +29,8 @@ run-console:
 
 [working-directory: "kernel"]
 run-kernel:
-    cargo watch -qcx run 
+    docker compose up -d 
+    docker compose logs -f --tail=30 app 
 
 [script]
 dev:
@@ -21,6 +40,7 @@ dev:
 release type:
     ./scripts/release.sh {{type}}
 
-[script]
+
+[working-directory:"scripts"]
 bootstrap-topics:
-    ./scripts/topics.sh
+   sh  ./scripts/topics.sh
