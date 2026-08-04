@@ -5,6 +5,6 @@
 </template>
 
 <script lang="ts" setup>
-const kafkaStore = useKafkaStore();
-const topics = await kafkaStore.fetchTopics();
+const kafkaStore = useKafkaStore()
+const topics = await kafkaStore.fetchTopics()
 </script>
