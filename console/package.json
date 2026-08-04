@@ -7,19 +7,23 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@domternal/core": "^0.14.0",
+    "@domternal/theme": "^0.14.0",
+    "@domternal/vue": "^0.14.0",
     "@iconify-json/lucide": "^1.2.121",
     "@iconify-json/simple-icons": "^1.2.92",
     "@nuxt/ui": "^4.10.0",
-    "@pinia/nuxt": "1.0.1",
+    "@pinia/nuxt": "^0.11.2",
     "axios": "^1.19.0",
     "nuxt": "^4.5.1",
-    "pinia": "^4.0.2",
+    "pinia": "^3.0.3",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

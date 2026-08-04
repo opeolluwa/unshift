@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { PublishMessageRequest } from '../../../../bindings/PublishMessageRequest'
 
+import { Domternal } from '@domternal/vue'
+import { Document, Text, Paragraph, CodeBlock } from '@domternal/core'
+
 const route = useRoute()
 
 const kafkaStore = useKafkaStore()
@@ -39,6 +42,8 @@ async function submit() {
 
   published.value = true
 }
+
+const extensions = [Document, Text, Paragraph, CodeBlock]
 </script>
 
 <template>
@@ -71,18 +76,12 @@ async function submit() {
           hint="Leave empty for no key."
         />
 
-        <UFormField
-          name="payload"
-          label="Payload"
+        <Domternal
+          :extensions="extensions"
+          content="<p>Hello from Vue!</p>"
         >
-          <UTextarea
-            v-model="formState.payload"
-            name="payload"
-            :rows="8"
-            placeholder="Message payload"
-            class="w-full"
-          />
-        </UFormField>
+          <Domternal.Content class="min-h-60" />
+        </Domternal>
 
         <p
           v-if="kafkaStore.error"

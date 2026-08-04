@@ -44,3 +44,13 @@ release type:
 [working-directory: "scripts"]
 bootstrap-topics:
     bash ./topics.sh
+
+version := `grep -m1 '^version' kernel/Cargo.toml | sed 's/.*"\(.*\)".*/\1/'`
+
+build:
+    docker build -t opeolluwa/unshift:{{version}} -t opeolluwa/unshift:latest -f docker/prod/Dockerfile \
+        --build-arg PORT={{env_var_or_default("PORT", "8000")}} \
+        --build-arg ENVIRONMENT={{env_var_or_default("ENVIRONMENT", "production")}} \
+        --build-arg ALLOWED_ORIGINS="{{env_var_or_default("ALLOWED_ORIGINS", "http://localhost:8000")}}" \
+        --build-arg REQUESTS_TIME_OUT_SECS={{env_var_or_default("REQUESTS_TIME_OUT_SECS", "10")}} \
+        .

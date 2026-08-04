@@ -2,10 +2,10 @@
 FROM node:22-slim AS frontend
 RUN corepack enable && corepack prepare pnpm@11.18.0 --activate
 WORKDIR /app
-COPY console/package*.json console/pnpm-lock.yaml ./
+COPY console/package*.json console/pnpm-lock.yaml console/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY console/ ./
-RUN pnpm run generate
+    RUN pnpm run build
 
 # Stage 2: Rust build
 FROM rust:1.94.0-slim-bookworm AS builder
@@ -31,7 +31,7 @@ RUN groupadd -r app && useradd -r -g app -d /app -s /sbin/nologin app \
 WORKDIR /app
 
 COPY --from=builder /app/kernel/target/release/unshift ./unshift
-COPY --from=frontend /app/.output/public ./dist
+COPY --from=frontend /app/.output/public ./assets
 
 RUN chown -R app:app /app
 
