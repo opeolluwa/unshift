@@ -1,0 +1,7 @@
+topics:
+  - name: orders
+    num_partitions: 3
+    replication_factor: 1
+  - name: payments
+    num_partitions: 2
+    replication_factor: 1
