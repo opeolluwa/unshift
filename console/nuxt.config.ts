@@ -24,10 +24,6 @@ export default defineNuxtConfig({
     '/': { prerender: true }
   },
 
-  pinia: {
-    storesDirs: ["./stores/**"],
-  },
-  
   compatibilityDate: '2026-06-30',
 
   eslint: {
@@ -37,5 +33,9 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  pinia: {
+    storesDirs: ['./stores/**']
   }
 })
