@@ -1,10 +1,11 @@
 use std::net::{Ipv4Addr, SocketAddrV4};
+use tower_http::services::{ServeDir, ServeFile};
 
 use axum::{Router, http::StatusCode};
 use kernel::{
     config::{cors::init_cors, env::load_env, logger::init_logger},
     errors::AppError,
-    handlers::handle_404,
+    // handlers::handle_404,
     kafka::connection::KafkaState,
     router,
 };
@@ -19,6 +20,8 @@ async fn main() -> Result<(), AppError> {
     let kafka_state = KafkaState::new()?;
     let cors = init_cors(&config);
 
+    let serve_dir = ServeDir::new("assets").not_found_service(ServeFile::new("assets/index.html"));
+
     let app = Router::new()
         .nest("/api", router::routes(kafka_state))
         .layer(tower_http::trace::TraceLayer::new_for_http())
@@ -28,7 +31,8 @@ async fn main() -> Result<(), AppError> {
         ))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .layer(cors)
-        .fallback(handle_404);
+        .fallback_service(serve_dir);
+    // .fallback(handle_404);
 
     let addr = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, config.port);
 

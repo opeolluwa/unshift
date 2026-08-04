@@ -31,7 +31,7 @@ RUN groupadd -r app && useradd -r -g app -d /app -s /sbin/nologin app \
 WORKDIR /app
 
 COPY --from=builder /app/kernel/target/release/unshift ./unshift
-COPY --from=frontend /app/.output/public ./dist
+COPY --from=frontend /app/.output/public ./assets
 
 RUN chown -R app:app /app
 

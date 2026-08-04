@@ -44,3 +44,6 @@ release type:
 [working-directory: "scripts"]
 bootstrap-topics:
     bash ./topics.sh
+
+build:
+    docker build -t unshift:latest -f docker/prod/Dockerfile .
