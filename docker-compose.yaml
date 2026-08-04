@@ -10,6 +10,8 @@ services:
       - ${PORT}:${PORT}
     env_file:
       - .env
+    environment:
+      - KAFKA_BROKER=kafka:29092
     depends_on:
       kafka:
         condition: service_started
@@ -19,11 +21,11 @@ services:
       - .:/app:cached
       - cargo-target:/cargo-target:delegated
       - rust-cache:/usr/local/cargo/registry:delegated
-    command: cargo watch -x run -w src -w Cargo.toml -w migrations
+    command: cargo watch -x run -w src -w Cargo.toml
     stdin_open: true
     tty: true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/api/health"]
       interval: 10s
       timeout: 5s
       retries: 10

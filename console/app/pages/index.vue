@@ -1,76 +1,162 @@
+<script setup lang="ts">
+import { h, resolveComponent } from 'vue'
+import type { TableColumn } from '@nuxt/ui'
+import type { TopicSummary } from '../bindings/TopicSummary'
+
+const UBadge = resolveComponent('UBadge')
+const NuxtLink = resolveComponent('NuxtLink')
+
+const kafkaStore = useKafkaStore()
+const { overview } = storeToRefs(kafkaStore)
+
+await kafkaStore.fetchClusterOverview()
+
+type OverviewRow = {
+  metric: string
+  value: string
+}
+
+const overviewRows = computed<OverviewRow[]>(() => {
+  const o = overview.value
+  if (!o) {
+    return []
+  }
+
+  return [
+    { metric: 'Bootstrap servers', value: o.bootstrapServers },
+    { metric: 'Total topics', value: String(o.totalTopics) },
+    { metric: 'Total partitions', value: String(o.totalPartitions) },
+    {
+      metric: 'Total preferred partition leader',
+      value: `${o.preferredPartitionLeaderPercentage}%`
+    },
+    { metric: 'Total under-replicated partitions', value: String(o.totalUnderReplicatedPartitions) }
+  ]
+})
+
+const overviewColumns: TableColumn<OverviewRow>[] = [
+  {
+    accessorKey: 'metric',
+    header: 'Metric'
+  },
+  {
+    accessorKey: 'value',
+    header: 'Value',
+    meta: {
+      class: {
+        th: 'text-right',
+        td: 'text-right font-medium'
+      }
+    }
+  }
+]
+
+await kafkaStore.fetchTopics()
+
+const data = computed(() => kafkaStore.topics)
+
+const preferredLeaderColor = (percent: number) =>
+  percent === 100 ? 'success' : percent > 0 ? 'warning' : 'error'
+
+const columns: TableColumn<TopicSummary>[] = [
+  {
+    accessorKey: 'topic',
+    header: 'Topic',
+    cell: ({ row }) => {
+      const topic = row.getValue<string>('topic')
+      return h(
+        NuxtLink,
+        {
+          to: `/topics/${encodeURIComponent(topic)}`,
+          class: 'text-primary cursor-pointer hover:underline'
+        },
+        topic
+      )
+    }
+  },
+  {
+    accessorKey: 'partitions',
+    header: 'Partitions',
+    meta: {
+      class: {
+        th: 'text-right',
+        td: 'text-right font-medium'
+      }
+    }
+  },
+  {
+    accessorKey: 'preferredLeaderPercent',
+    header: '% Preferred',
+    cell: ({ row }) => {
+      const percent = row.getValue<number>('preferredLeaderPercent')
+      return h(
+        UBadge,
+        { variant: 'subtle', color: preferredLeaderColor(percent) },
+        () => `${percent}%`
+      )
+    }
+  },
+  {
+    accessorKey: 'underReplicated',
+    header: '# Under-replicated',
+    cell: ({ row }) => {
+      const count = row.getValue<number>('underReplicated')
+      return h(
+        UBadge,
+        { variant: 'subtle', color: count > 0 ? 'error' : 'success' },
+        () => String(count)
+      )
+    }
+  },
+  {
+    accessorKey: 'customConfigs',
+    header: 'Custom Config',
+    cell: ({ row }) => {
+      const count = row.getValue<number>('customConfigs')
+      return count > 0 ? `${count} config${count > 1 ? 's' : ''}` : '—'
+    }
+  }
+]
+
+const globalFilter = ref('')
+const showCreateTopic = ref(false)
+</script>
+
 <template>
-  <div>
-    <UPageHero
-      title="Nuxt Starter Template"
-      description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
-      :links="[{
-        label: 'Get started',
-        to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-        target: '_blank',
-        trailingIcon: 'i-lucide-arrow-right',
-        size: 'xl'
-      }, {
-        label: 'Use this template',
-        to: 'https://github.com/nuxt-ui-templates/starter',
-        target: '_blank',
-        icon: 'i-simple-icons-github',
-        size: 'xl',
-        color: 'neutral',
-        variant: 'subtle'
-      }]"
-    />
+  <div class="flex flex-col flex-1 w-full gap-8">
+    <div class="flex flex-col gap-2">
+      <AppLeadingText>Kafka cluster overview</AppLeadingText>
 
-    <UPageSection
-      id="features"
-      title="Everything you need to build modern Nuxt apps"
-      description="Start with a solid foundation. This template includes all the essentials for building production-ready applications with Nuxt UI's powerful component system."
-      :features="[{
-        icon: 'i-lucide-rocket',
-        title: 'Production-ready from day one',
-        description: 'Pre-configured with TypeScript, ESLint, Tailwind CSS, and all the best practices. Focus on building features, not setting up tooling.'
-      }, {
-        icon: 'i-lucide-palette',
-        title: 'Beautiful by default',
-        description: 'Leveraging Nuxt UI\'s design system with automatic dark mode, consistent spacing, and polished components that look great out of the box.'
-      }, {
-        icon: 'i-lucide-zap',
-        title: 'Lightning fast',
-        description: 'Optimized for performance with SSR/SSG support, automatic code splitting, and edge-ready deployment. Your users will love the speed.'
-      }, {
-        icon: 'i-lucide-blocks',
-        title: '100+ components included',
-        description: 'Access Nuxt UI\'s comprehensive component library. From forms to navigation, everything is accessible, responsive, and customizable.'
-      }, {
-        icon: 'i-lucide-code-2',
-        title: 'Developer experience first',
-        description: 'Auto-imports, hot module replacement, and TypeScript support. Write less boilerplate and ship more features.'
-      }, {
-        icon: 'i-lucide-shield-check',
-        title: 'Built for scale',
-        description: 'Enterprise-ready architecture with proper error handling, SEO optimization, and security best practices built-in.'
-      }]"
-    />
-
-    <UPageSection>
-      <UPageCTA
-        title="Ready to build your next Nuxt app?"
-        description="Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today."
-        variant="subtle"
-        :links="[{
-          label: 'Start building',
-          to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-          target: '_blank',
-          trailingIcon: 'i-lucide-arrow-right',
-          color: 'neutral'
-        }, {
-          label: 'View on GitHub',
-          to: 'https://github.com/nuxt-ui-templates/starter',
-          target: '_blank',
-          icon: 'i-simple-icons-github',
-          color: 'neutral',
-          variant: 'outline'
-        }]"
+      <UTable
+        :data="overviewRows"
+        :columns="overviewColumns"
       />
-    </UPageSection>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <AppLeadingText>Topics</AppLeadingText>
+      <div class="flex items-center justify-between gap-4 px-4 py-3.5 border-b border-accented">
+        <UInput
+          v-model="globalFilter"
+          class="max-w-sm"
+          placeholder="Filter..."
+        />
+
+        <AppButton
+          icon="i-lucide-plus"
+          size="lg"
+          @click="showCreateTopic = true"
+        >
+          Create topic
+        </AppButton>
+      </div>
+      <UTable
+        v-model:global-filter="globalFilter"
+        :data="data"
+        :columns="columns"
+      />
+    </div>
+
+    <!-- <AppCreateTopicModal v-model:open="showCreateTopic" /> -->
   </div>
 </template>

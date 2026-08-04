@@ -1,12 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui'
-  ],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@pinia/nuxt'],
 
   devtools: {
     enabled: true
+  },
+
+  app: {
+    pageTransition: { name: 'slide-left', mode: 'out-in' },
+    head: {
+      titleTemplate: '%s | Unshift',
+      meta: [
+        { name: 'robots', content: 'noindex, nofollow' },
+        { name: 'description', content: 'Kafka admin UI' },
+        { name: 'theme-color', content: '#ffffff' }
+      ]
+    }
   },
 
   css: ['~/assets/css/main.css'],

@@ -1,19 +1,6 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(Debug, Deserialize)]
-pub struct User {
-    pub username: String,
-    pub password: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Pagination {
-    pub current_page: u16,
-    pub page_size: u16,
-}
-
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
@@ -33,14 +20,28 @@ pub struct PublishMessageRequest {
 #[derive(Debug, Serialize, TS)]
 #[ts(export)]
 pub struct TopicsResponse {
-    pub topics: Vec<String>,
+    pub topics: Vec<TopicSummary>,
 }
 
 #[derive(Debug, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub struct TopicResponse {
+pub struct TopicSummary {
     pub topic: String,
-    pub partitions: Vec<String>,
+    pub partitions: i32,
+    pub preferred_leader_percent: i32,
+    pub under_replicated: i32,
+    pub custom_configs: i32,
+    pub configs: Vec<TopicConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct TopicConfig {
+    pub name: String,
+    pub value: Option<String>,
+    pub read_only: bool,
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -55,4 +56,31 @@ pub struct CreateTopicResponse {
 pub struct PublishResponse {
     pub topic: String,
     pub status: String,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct Message {
+    pub key: Option<String>,
+    pub payload: String,
+    pub partition: i32,
+    pub offset: i64,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct MessagesResponse {
+    pub topic: String,
+    pub messages: Vec<Message>,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ClusterOverviewResponse {
+    pub bootstrap_servers: String,
+    pub total_topics: usize,
+    pub total_partitions: usize,
+    pub preferred_partition_leader_percentage: f64,
+    pub total_under_replicated_partitions: usize,
 }

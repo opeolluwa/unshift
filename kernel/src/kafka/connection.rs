@@ -39,6 +39,17 @@ pub fn create_metadata_client() -> Result<BaseConsumer<DefaultConsumerContext>, 
         .map_err(|err| AppError::KafkaError(err.to_string()))
 }
 
+pub fn create_consumer() -> Result<BaseConsumer<DefaultConsumerContext>, AppError> {
+    let mut config = create_client_config()?;
+    config
+        .set("auto.offset.reset", "earliest")
+        .set("enable.auto.commit", "false");
+
+    config
+        .create()
+        .map_err(|err| AppError::KafkaError(err.to_string()))
+}
+
 pub fn create_admin_client() -> Result<AdminClient<DefaultClientContext>, AppError> {
     let config = create_client_config()?;
 
@@ -52,6 +63,7 @@ pub struct KafkaState {
     pub producer: FutureProducer,
     pub metadata_client: Arc<BaseConsumer<DefaultConsumerContext>>,
     pub admin_client: Arc<AdminClient<DefaultClientContext>>,
+    pub consumer: Arc<BaseConsumer<DefaultConsumerContext>>,
 }
 
 impl KafkaState {
@@ -59,11 +71,13 @@ impl KafkaState {
         let producer = create_producer()?;
         let metadata_client = Arc::new(create_metadata_client()?);
         let admin_client = Arc::new(create_admin_client()?);
+        let consumer = Arc::new(create_consumer()?);
 
         Ok(Self {
             producer,
             metadata_client,
             admin_client,
+            consumer,
         })
     }
 }

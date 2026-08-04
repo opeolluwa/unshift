@@ -7,8 +7,8 @@ use axum::{
 
 use crate::{
     adapters::{
-        AddTopicRequest, CreateTopicResponse, PublishMessageRequest, PublishResponse,
-        TopicResponse, TopicsResponse, User, Pagination,
+        AddTopicRequest, ClusterOverviewResponse, CreateTopicResponse, Message, MessagesResponse,
+        PublishMessageRequest, PublishResponse, TopicSummary, TopicsResponse,
     },
     errors::AppError,
     kafka::{connection::KafkaState, utils},
@@ -18,42 +18,6 @@ pub async fn health_check() -> impl IntoResponse {
     "healthy"
 }
 
-// path variables workspace/:workspace_id/user/:id
-// workspace/
-// workspace/:id
-// workspace/:id/user/:userId
-pub async fn extract_path(Path(user_identifier): Path<String>) -> impl IntoResponse {
-    user_identifier
-}
-
-pub async fn extract_multiple_path(
-    Path((workspace_identifier, user_identifier)): Path<(String, String)>,
-) -> impl IntoResponse {
-    format!("{user_identifier}\n{workspace_identifier}")
-}
-
-// /search?username=&password=password
-pub async fn extract_query(Query(user): Query<User>) -> impl IntoResponse {
-    format!("username: {}\npassword:{}", user.username, user.password)
-}
-
-pub async fn extract_json(Json(user): Json<User>) -> impl IntoResponse {
-    format!("username: {}\npassword:{}", user.username, user.password)
-}
-
-// profile/:id?pageSize=5&currentPage=3
-pub async fn extract_multiple_types(
-    Query(pagination): Query<Pagination>,
-    Path(user_identifier): Path<String>,
-    Json(user): Json<User>,
-) -> impl IntoResponse {
-    dbg!("{}", user);
-    dbg!("{}", pagination);
-    dbg!("{}", user_identifier);
-
-    "response"
-}
-
 pub async fn handle_404() -> impl IntoResponse {
     (
         StatusCode::NOT_FOUND,
@@ -61,12 +25,18 @@ pub async fn handle_404() -> impl IntoResponse {
     )
 }
 
-pub async fn get_topics(
-    State(state): State<KafkaState>,
-) -> Result<Json<TopicsResponse>, AppError> {
-    let topics = utils::retrieve_topics(&state.metadata_client).await?;
+pub async fn get_topics(State(state): State<KafkaState>) -> Result<Json<TopicsResponse>, AppError> {
+    let topics = utils::retrieve_topics(&state.metadata_client, &state.admin_client).await?;
 
     Ok(Json(TopicsResponse { topics }))
+}
+
+pub async fn get_cluster_overview(
+    State(state): State<KafkaState>,
+) -> Result<Json<ClusterOverviewResponse>, AppError> {
+    let overview = utils::retrieve_cluster_overview(&state.metadata_client).await?;
+
+    Ok(Json(overview))
 }
 
 pub async fn create_topic(
@@ -90,13 +60,11 @@ pub async fn create_topic(
 pub async fn get_topic(
     State(state): State<KafkaState>,
     Path(topic_name): Path<String>,
-) -> Result<Json<TopicResponse>, AppError> {
-    let partitions = utils::retrieve_topic(&state.metadata_client, &topic_name).await?;
+) -> Result<Json<TopicSummary>, AppError> {
+    let topic =
+        utils::retrieve_topic(&state.metadata_client, &state.admin_client, &topic_name).await?;
 
-    Ok(Json(TopicResponse {
-        topic: topic_name,
-        partitions,
-    }))
+    Ok(Json(topic))
 }
 
 pub async fn publish_message(
@@ -109,5 +77,26 @@ pub async fn publish_message(
     Ok(Json(PublishResponse {
         topic: topic_name,
         status: "published".to_string(),
+    }))
+}
+
+#[derive(Debug, serde::Deserialize)]
+pub struct GetMessagesParams {
+    pub limit: Option<usize>,
+}
+
+pub async fn get_messages(
+    State(state): State<KafkaState>,
+    Path(topic_name): Path<String>,
+    Query(params): Query<GetMessagesParams>,
+) -> Result<Json<MessagesResponse>, AppError> {
+    let limit = params.limit.unwrap_or(10).min(100);
+
+    let messages: Vec<Message> =
+        utils::retrieve_messages(&state.consumer, &topic_name, limit).await?;
+
+    Ok(Json(MessagesResponse {
+        topic: topic_name,
+        messages,
     }))
 }

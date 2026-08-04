@@ -1,1 +1,1 @@
-cd console && npm run lint --fix 
+cd console && npm run lint -- --fix 
