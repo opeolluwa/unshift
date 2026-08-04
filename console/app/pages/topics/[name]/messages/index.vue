@@ -5,6 +5,8 @@ import type { Message } from '../../../bindings/Message'
 
 const route = useRoute()
 
+useHead({ title: 'Messages' })
+
 const kafkaStore = useKafkaStore()
 const { messages, loading, error } = storeToRefs(kafkaStore)
 

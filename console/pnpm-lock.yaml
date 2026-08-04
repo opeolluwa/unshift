@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@domternal/core':
+        specifier: ^0.14.0
+        version: 0.14.0
+      '@domternal/theme':
+        specifier: ^0.14.0
+        version: 0.14.0
+      '@domternal/vue':
+        specifier: ^0.14.0
+        version: 0.14.0(@domternal/core@0.14.0)(vue@3.5.40(typescript@6.0.3))
       '@iconify-json/lucide':
         specifier: ^1.2.121
         version: 1.2.121
@@ -246,6 +255,27 @@ packages:
     peerDependenciesMeta:
       '@devframes/hub':
         optional: true
+
+  '@domternal/core@0.14.0':
+    resolution: {integrity: sha512-FYg/h1X23dQ9PGF0UmJhNXgwLC18T/eBeynuZyEdj3EnZj+NmJr0o6C0QI8aMbRPevKQBm8iJ85lWKdSs77kZw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      linkedom: ^0.18.0
+    peerDependenciesMeta:
+      linkedom:
+        optional: true
+
+  '@domternal/pm@0.14.0':
+    resolution: {integrity: sha512-Qdbaz0ZYEmxAEZ23KyJEXYSw02vtUbtV1+FDsTh2ezZlFkKAll37SKVGDs8TnvMN4qh3qtNq9xq2RgQf1LHAcA==}
+
+  '@domternal/theme@0.14.0':
+    resolution: {integrity: sha512-ThO5EeUFy4rET5IgnaTYIL+PJjLBQNC4TRDe59Yxp+lPd85TRiTTkJMjzfxdZAid7lJcihl7FP47fvGSqNVAUQ==}
+
+  '@domternal/vue@0.14.0':
+    resolution: {integrity: sha512-jcoKMSQnd1Q/wVsdE4AtliuiU6WF9FVhG0DlS93ezEPWDo4nk9yVQtHYmDtbLuTjyMhW1wBfXYDodczBgEYR4Q==}
+    peerDependencies:
+      '@domternal/core': '>=0.14.0'
+      vue: '>=3.3'
 
   '@dxup/nuxt@0.5.5':
     resolution: {integrity: sha512-7GIUr0aD4klOyLjGMzLBNjsZiIbU6EPqO5de1Q1kTPdZXWMqamr5FqRCZycA/9n9lxsXRLFxENL7tcRAClMTrw==}
@@ -5814,6 +5844,34 @@ snapshots:
       zod: 4.4.3
     optionalDependencies:
       '@devframes/hub': 0.7.15(devframe@0.7.15(srvx@0.11.22)(typescript@6.0.3))
+
+  '@domternal/core@0.14.0':
+    dependencies:
+      '@domternal/pm': 0.14.0
+      '@floating-ui/dom': 1.8.0
+      linkifyjs: 4.3.3
+
+  '@domternal/pm@0.14.0':
+    dependencies:
+      prosemirror-commands: 1.7.1
+      prosemirror-dropcursor: 1.8.2
+      prosemirror-gapcursor: 1.4.1
+      prosemirror-history: 1.5.0
+      prosemirror-inputrules: 1.5.1
+      prosemirror-keymap: 1.2.3
+      prosemirror-model: 1.25.7
+      prosemirror-schema-list: 1.5.1
+      prosemirror-state: 1.4.4
+      prosemirror-tables: 1.8.5
+      prosemirror-transform: 1.12.0
+      prosemirror-view: 1.41.8
+
+  '@domternal/theme@0.14.0': {}
+
+  '@domternal/vue@0.14.0(@domternal/core@0.14.0)(vue@3.5.40(typescript@6.0.3))':
+    dependencies:
+      '@domternal/core': 0.14.0
+      vue: 3.5.40(typescript@6.0.3)
 
   '@dxup/nuxt@0.5.5(esbuild@0.28.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.1)(rollup@4.60.4)(vite@8.1.5(esbuild@0.28.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.9.0))':
     dependencies:

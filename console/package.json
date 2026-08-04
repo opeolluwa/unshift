@@ -13,6 +13,9 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@domternal/core": "^0.14.0",
+    "@domternal/theme": "^0.14.0",
+    "@domternal/vue": "^0.14.0",
     "@iconify-json/lucide": "^1.2.121",
     "@iconify-json/simple-icons": "^1.2.92",
     "@nuxt/ui": "^4.10.0",

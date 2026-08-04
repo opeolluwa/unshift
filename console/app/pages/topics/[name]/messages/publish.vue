@@ -1,44 +1,49 @@
 <script setup lang="ts">
-import type { PublishMessageRequest } from '../../../../bindings/PublishMessageRequest'
+import type { PublishMessageRequest } from "../../../../bindings/PublishMessageRequest";
 
-const route = useRoute()
+import { Domternal } from "@domternal/vue";
+import { Document, Text, Paragraph, CodeBlock } from '@domternal/core';
 
-const kafkaStore = useKafkaStore()
+const route = useRoute();
+
+const kafkaStore = useKafkaStore();
 
 const topicName = computed(() => {
-  const name = route.params.name
-  return Array.isArray(name) ? name[0] : name
-})
+  const name = route.params.name;
+  return Array.isArray(name) ? name[0] : name;
+});
 
-const encodedTopic = computed(() => encodeURIComponent(topicName.value ?? ''))
+const encodedTopic = computed(() => encodeURIComponent(topicName.value ?? ""));
 
 const formState = reactive({
-  key: '',
-  payload: ''
-})
+  key: "",
+  payload: "",
+});
 
-const published = ref(false)
+const published = ref(false);
 
 function reset() {
-  formState.key = ''
-  formState.payload = ''
-  published.value = false
+  formState.key = "";
+  formState.payload = "";
+  published.value = false;
 }
 
 async function submit() {
   const payload: PublishMessageRequest = {
     key: formState.key,
-    payload: formState.payload
-  }
+    payload: formState.payload,
+  };
 
-  await kafkaStore.publishMessage(topicName.value ?? '', payload)
+  await kafkaStore.publishMessage(topicName.value ?? "", payload);
 
   if (kafkaStore.error) {
-    return
+    return;
   }
 
-  published.value = true
+  published.value = true;
 }
+
+const extensions = [Document, Text, Paragraph, CodeBlock];
 </script>
 
 <template>
@@ -53,10 +58,7 @@ async function submit() {
     />
 
     <div class="flex flex-col gap-2">
-      <AppPageHeader
-        title="Publish message"
-        :subtitle="topicName ?? ''"
-      />
+      <AppPageHeader title="Publish message" :subtitle="topicName ?? ''" />
 
       <UForm
         :state="formState"
@@ -71,39 +73,20 @@ async function submit() {
           hint="Leave empty for no key."
         />
 
-        <UFormField
-          name="payload"
-          label="Payload"
-        >
-          <UTextarea
-            v-model="formState.payload"
-            name="payload"
-            :rows="8"
-            placeholder="Message payload"
-            class="w-full"
-          />
-        </UFormField>
+        <Domternal :extensions="extensions" content="<p>Hello from Vue!</p>">
+          <Domternal.Content class="min-h-60" />
+        </Domternal>
 
-        <p
-          v-if="kafkaStore.error"
-          class="text-sm text-red-500"
-        >
+        <p v-if="kafkaStore.error" class="text-sm text-red-500">
           {{ kafkaStore.error }}
         </p>
 
-        <p
-          v-else-if="published"
-          class="text-sm text-green-600 dark:text-green-400"
-        >
+        <p v-else-if="published" class="text-sm text-green-600 dark:text-green-400">
           Message published successfully.
         </p>
 
         <div class="flex justify-end gap-2 pt-2">
-          <AppButton
-            color="neutral"
-            variant="soft"
-            @click="reset"
-          >
+          <AppButton color="neutral" variant="soft" @click="reset">
             Reset
           </AppButton>
 
