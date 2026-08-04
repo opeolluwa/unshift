@@ -59,6 +59,22 @@ pub struct PublishResponse {
 }
 
 #[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct Message {
+    pub key: Option<String>,
+    pub payload: String,
+    pub partition: i32,
+    pub offset: i64,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct MessagesResponse {
+    pub topic: String,
+    pub messages: Vec<Message>,
+}
+
+#[derive(Debug, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct ClusterOverviewResponse {

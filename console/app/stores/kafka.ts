@@ -1,6 +1,8 @@
 import type { AddTopicRequest } from '../bindings/AddTopicRequest'
 import type { ClusterOverviewResponse } from '../bindings/ClusterOverviewResponse'
 import type { CreateTopicResponse } from '../bindings/CreateTopicResponse'
+import type { Message } from '../bindings/Message'
+import type { MessagesResponse } from '../bindings/MessagesResponse'
 import type { PublishMessageRequest } from '../bindings/PublishMessageRequest'
 import type { PublishResponse } from '../bindings/PublishResponse'
 import type { TopicSummary } from '../bindings/TopicSummary'
@@ -11,6 +13,7 @@ export const useKafkaStore = defineStore('kafka', {
     overview: null as ClusterOverviewResponse | null,
     topics: [] as TopicSummary[],
     topic: null as TopicSummary | null,
+    messages: [] as Message[],
     loading: false,
     error: null as string | null
   }),
@@ -69,6 +72,23 @@ export const useKafkaStore = defineStore('kafka', {
         const { $api } = useNuxtApp()
         const { data } = await $api.get<TopicSummary>(`/topics/${name}`)
         this.topic = data
+      } catch (err) {
+        this.error = (err as Error).message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchMessages(topicName: string, limit = 10) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const { $api } = useNuxtApp()
+        const { data } = await $api.get<MessagesResponse>(`/topics/${topicName}/messages`, {
+          params: { limit }
+        })
+        this.messages = data.messages
       } catch (err) {
         this.error = (err as Error).message
       } finally {

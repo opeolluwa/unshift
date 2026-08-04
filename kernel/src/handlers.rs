@@ -1,14 +1,14 @@
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
 };
 
 use crate::{
     adapters::{
-        AddTopicRequest, ClusterOverviewResponse, CreateTopicResponse, PublishMessageRequest,
-        PublishResponse, TopicSummary, TopicsResponse,
+        AddTopicRequest, ClusterOverviewResponse, CreateTopicResponse, Message, MessagesResponse,
+        PublishMessageRequest, PublishResponse, TopicSummary, TopicsResponse,
     },
     errors::AppError,
     kafka::{connection::KafkaState, utils},
@@ -77,5 +77,26 @@ pub async fn publish_message(
     Ok(Json(PublishResponse {
         topic: topic_name,
         status: "published".to_string(),
+    }))
+}
+
+#[derive(Debug, serde::Deserialize)]
+pub struct GetMessagesParams {
+    pub limit: Option<usize>,
+}
+
+pub async fn get_messages(
+    State(state): State<KafkaState>,
+    Path(topic_name): Path<String>,
+    Query(params): Query<GetMessagesParams>,
+) -> Result<Json<MessagesResponse>, AppError> {
+    let limit = params.limit.unwrap_or(10).min(100);
+
+    let messages: Vec<Message> =
+        utils::retrieve_messages(&state.consumer, &topic_name, limit).await?;
+
+    Ok(Json(MessagesResponse {
+        topic: topic_name,
+        messages,
     }))
 }

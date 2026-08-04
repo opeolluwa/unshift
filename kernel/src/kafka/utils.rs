@@ -1,6 +1,7 @@
 use std::{collections::HashMap, time::Duration};
 
 use rdkafka::{
+    Message as KafkaMessage,
     admin::{
         AdminClient, AdminOptions, ConfigSource, NewTopic, OwnedResourceSpecifier,
         ResourceSpecifier, TopicReplication,
@@ -9,10 +10,11 @@ use rdkafka::{
     consumer::{BaseConsumer, Consumer},
     metadata::MetadataTopic,
     producer::{FutureProducer, FutureRecord},
+    topic_partition_list::{Offset, TopicPartitionList},
 };
 
 use crate::{
-    adapters::{ClusterOverviewResponse, TopicConfig, TopicSummary},
+    adapters::{ClusterOverviewResponse, Message, TopicConfig, TopicSummary},
     errors::AppError,
 };
 
@@ -197,6 +199,73 @@ async fn retrieve_topic_configs(
     }
 
     Ok(configs)
+}
+
+pub async fn retrieve_messages(
+    consumer: &BaseConsumer,
+    topic_name: &str,
+    limit: usize,
+) -> Result<Vec<Message>, AppError> {
+    let metadata = consumer
+        .fetch_metadata(Some(topic_name), Duration::from_secs(10))
+        .map_err(|err| AppError::KafkaError(err.to_string()))?;
+
+    let partitions: Vec<i32> = metadata
+        .topics()
+        .iter()
+        .flat_map(|topic| topic.partitions())
+        .map(|partition| partition.id())
+        .collect();
+
+    if partitions.is_empty() {
+        return Err(AppError::KafkaError(format!(
+            "topic {topic_name} not found"
+        )));
+    }
+
+    let mut assignment = TopicPartitionList::new();
+    for partition in partitions {
+        assignment
+            .add_partition(topic_name, partition)
+            .set_offset(Offset::Beginning)
+            .map_err(|err| AppError::KafkaError(err.to_string()))?;
+    }
+
+    consumer
+        .assign(&assignment)
+        .map_err(|err| AppError::KafkaError(err.to_string()))?;
+
+    let mut messages = Vec::new();
+    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+
+    while messages.len() < limit && std::time::Instant::now() < deadline {
+        match consumer.poll(Duration::from_millis(200)) {
+            Some(Ok(borrowed)) => {
+                messages.push(Message {
+                    key: borrowed
+                        .key()
+                        .map(|key| String::from_utf8_lossy(key).to_string()),
+                    payload: borrowed
+                        .payload()
+                        .map(|payload| String::from_utf8_lossy(payload).to_string())
+                        .unwrap_or_default(),
+                    partition: borrowed.partition(),
+                    offset: borrowed.offset(),
+                });
+            }
+            Some(Err(err)) => {
+                let _ = consumer.unassign();
+                return Err(AppError::KafkaError(err.to_string()));
+            }
+            None => {}
+        }
+    }
+
+    consumer
+        .unassign()
+        .map_err(|err| AppError::KafkaError(err.to_string()))?;
+
+    Ok(messages)
 }
 
 pub async fn publish_to_topic(

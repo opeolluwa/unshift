@@ -157,6 +157,6 @@ const showCreateTopic = ref(false)
       />
     </div>
 
-    <AppCreateTopicModal v-model:open="showCreateTopic" />
+    <!-- <AppCreateTopicModal v-model:open="showCreateTopic" /> -->
   </div>
 </template>

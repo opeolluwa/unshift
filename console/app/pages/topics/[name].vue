@@ -98,6 +98,22 @@ const configColumns: TableColumn<TopicConfig>[] = [
       />
 
       <template v-else-if="topic">
+        <div class="flex gap-2">
+          <UButton
+            :to="`/topics/${encodeURIComponent(topic.topic)}/messages`"
+            icon="i-lucide-list"
+            label="View messages"
+            variant="outline"
+            color="neutral"
+          />
+          <UButton
+            :to="`/topics/${encodeURIComponent(topic.topic)}/messages/publish`"
+            icon="i-lucide-send"
+            label="Publish messages"
+            color="primary"
+          />
+        </div>
+
         <UTable
           :data="summaryRows"
           :columns="summaryColumns"
