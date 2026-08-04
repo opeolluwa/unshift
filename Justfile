@@ -20,3 +20,7 @@ dev:
 [script]
 release type:
     ./scripts/release.sh {{type}}
+
+[script]
+bootstrap-topics:
+    ./scripts/topics.sh
