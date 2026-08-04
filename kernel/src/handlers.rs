@@ -25,9 +25,7 @@ pub async fn handle_404() -> impl IntoResponse {
     )
 }
 
-pub async fn get_topics(
-    State(state): State<KafkaState>,
-) -> Result<Json<TopicsResponse>, AppError> {
+pub async fn get_topics(State(state): State<KafkaState>) -> Result<Json<TopicsResponse>, AppError> {
     let topics = utils::retrieve_topics(&state.metadata_client, &state.admin_client).await?;
 
     Ok(Json(TopicsResponse { topics }))
@@ -63,7 +61,8 @@ pub async fn get_topic(
     State(state): State<KafkaState>,
     Path(topic_name): Path<String>,
 ) -> Result<Json<TopicSummary>, AppError> {
-    let topic = utils::retrieve_topic(&state.metadata_client, &state.admin_client, &topic_name).await?;
+    let topic =
+        utils::retrieve_topic(&state.metadata_client, &state.admin_client, &topic_name).await?;
 
     Ok(Json(topic))
 }

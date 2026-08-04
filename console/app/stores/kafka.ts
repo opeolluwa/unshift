@@ -1,19 +1,36 @@
 import type { AddTopicRequest } from '../bindings/AddTopicRequest'
+import type { ClusterOverviewResponse } from '../bindings/ClusterOverviewResponse'
 import type { CreateTopicResponse } from '../bindings/CreateTopicResponse'
 import type { PublishMessageRequest } from '../bindings/PublishMessageRequest'
 import type { PublishResponse } from '../bindings/PublishResponse'
-import type { TopicResponse } from '../bindings/TopicResponse'
+import type { TopicSummary } from '../bindings/TopicSummary'
 import type { TopicsResponse } from '../bindings/TopicsResponse'
 
 export const useKafkaStore = defineStore('kafka', {
   state: () => ({
-    topics: [] as string[],
-    topic: null as TopicResponse | null,
+    overview: null as ClusterOverviewResponse | null,
+    topics: [] as TopicSummary[],
+    topic: null as TopicSummary | null,
     loading: false,
     error: null as string | null
   }),
 
   actions: {
+    async fetchClusterOverview() {
+      this.loading = true
+      this.error = null
+
+      try {
+        const { $api } = useNuxtApp()
+        const { data } = await $api.get<ClusterOverviewResponse>('/cluster/overview')
+        this.overview = data
+      } catch (err) {
+        this.error = (err as Error).message
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchTopics() {
       this.loading = true
       this.error = null
@@ -50,7 +67,7 @@ export const useKafkaStore = defineStore('kafka', {
 
       try {
         const { $api } = useNuxtApp()
-        const { data } = await $api.get<TopicResponse>(`/topics/${name}`)
+        const { data } = await $api.get<TopicSummary>(`/topics/${name}`)
         this.topic = data
       } catch (err) {
         this.error = (err as Error).message

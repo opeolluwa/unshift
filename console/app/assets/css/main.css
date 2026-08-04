@@ -1,18 +1,56 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme static {
-  --font-sans: 'Public Sans', sans-serif;
+html,
+body {
+  font-family: "Poppins", "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+:root {
+  --color-app-dark: oklch(13.676% 0.03548 287.59);
+  --color-app-dark-50: oklch(40.069% 0.18338 279.76);
+  --color-app-dark-100: oklch(37.506% 0.16855 280.32);
+  --color-app-dark-200: oklch(31.927% 0.13934 280.81);
+  --color-app-dark-300: oklch(26.109% 0.10843 281.58);
+  --color-app-dark-400: oklch(20.291% 0.07314 283.58);
+  --color-app-dark-500: oklch(13.676% 0.03548 287.59);
+  --color-app-dark-600: oklch(0% 0 none);
+  --color-app-dark-700: oklch(0% 0 none);
+  --color-app-dark-800: oklch(0% 0 none);
+  --color-app-dark-900: oklch(0% 0 none);
+  --color-app-dark-950: oklch(0% 0 none);
+}
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+@theme {
+  --color-primary: oklch(66.928% 0.14749 161.18);
+  --color-primary-50: oklch(89.797% 0.13463 168.42);
+  --color-primary-100: oklch(88.75% 0.14857 167.43);
+  --color-primary-200: oklch(87.036% 0.17158 164.58);
+  --color-primary-300: oklch(86.059% 0.18836 161.41);
+  --color-primary-400: oklch(77.693% 0.17164 161.11);
+  --color-primary-500: oklch(66.928% 0.14749 161.18);
+  --color-primary-600: oklch(51.285% 0.11091 162.13);
+  --color-primary-700: oklch(34.294% 0.07192 163.42);
+  --color-primary-800: oklch(14.757% 0.02506 175.02);
+  --color-primary-900: oklch(0% 0 none);
+  --color-primary-950: oklch(0% 0 none);
+  
+  --ui-primary: oklch(28.299% 0.07694 303.88);
+  --ui-primary-50: oklch(57.836% 0.14241 304.4);
+  --ui-primary-100: oklch(53.864% 0.15627 303.52);
+  --ui-primary-200: oklch(47.521% 0.14582 303.37);
+  --ui-primary-300: oklch(41.415% 0.12488 303.23);
+  --ui-primary-400: oklch(35.007% 0.10164 303.48);
+  --ui-primary-500: oklch(28.299% 0.07694 303.88);
+  --ui-primary-600: oklch(18.429% 0.03734 303.43);
+  --ui-primary-700: oklch(0% 0 none);
+  --ui-primary-800: oklch(0% 0 none);
+  --ui-primary-900: oklch(0% 0 none);
+  --ui-primary-950: oklch(0% 0 none);
+}
+
+.dark {
+  --ui-bg: var(--color-app-dark-500);
 }

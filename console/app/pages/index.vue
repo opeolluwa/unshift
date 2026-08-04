@@ -1,131 +1,144 @@
 <script setup lang="ts">
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
+import type { TopicSummary } from '../bindings/TopicSummary'
 
 const UBadge = resolveComponent('UBadge')
 
-type Payment = {
-  id: string
-  date: string
-  status: 'paid' | 'failed' | 'refunded'
-  email: string
-  amount: number
+const kafkaStore = useKafkaStore()
+const { overview } = storeToRefs(kafkaStore)
+
+await kafkaStore.fetchClusterOverview()
+
+type OverviewRow = {
+  metric: string
+  value: string
 }
 
-const data = ref<Payment[]>([
-  {
-    id: '4600',
-    date: '2024-03-11T15:30:00',
-    status: 'paid',
-    email: 'james.anderson@example.com',
-    amount: 594
-  },
-  {
-    id: '4599',
-    date: '2024-03-11T10:10:00',
-    status: 'failed',
-    email: 'mia.white@example.com',
-    amount: 276
-  },
-  {
-    id: '4598',
-    date: '2024-03-11T08:50:00',
-    status: 'refunded',
-    email: 'william.brown@example.com',
-    amount: 315
-  },
-  {
-    id: '4597',
-    date: '2024-03-10T19:45:00',
-    status: 'paid',
-    email: 'emma.davis@example.com',
-    amount: 529
-  },
-  {
-    id: '4596',
-    date: '2024-03-10T15:55:00',
-    status: 'paid',
-    email: 'ethan.harris@example.com',
-    amount: 639
+const overviewRows = computed<OverviewRow[]>(() => {
+  const o = overview.value
+  if (!o) {
+    return []
   }
-])
 
-const columns: TableColumn<Payment>[] = [
-  {
-    accessorKey: 'id',
-    header: '#',
-    cell: ({ row }) => `#${row.getValue('id')}`
-  },
-  {
-    accessorKey: 'date',
-    header: 'Date',
-    cell: ({ row }) => {
-      return new Date(row.getValue('date')).toLocaleString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
-    }
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => {
-      const color = {
-        paid: 'success' as const,
-        failed: 'error' as const,
-        refunded: 'neutral' as const
-      }[row.getValue('status') as string]
+  return [
+    { metric: 'Bootstrap servers', value: o.bootstrapServers },
+    { metric: 'Total topics', value: String(o.totalTopics) },
+    { metric: 'Total partitions', value: String(o.totalPartitions) },
+    {
+      metric: 'Total preferred partition leader',
+      value: `${o.preferredPartitionLeaderPercentage}%`
+    },
+    { metric: 'Total under-replicated partitions', value: String(o.totalUnderReplicatedPartitions) }
+  ]
+})
 
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.getValue('status')
-      )
-    }
+const overviewColumns: TableColumn<OverviewRow>[] = [
+  {
+    accessorKey: 'metric',
+    header: 'Metric'
   },
   {
-    accessorKey: 'email',
-    header: 'Email'
-  },
-  {
-    accessorKey: 'amount',
-    header: 'Amount',
+    accessorKey: 'value',
+    header: 'Value',
     meta: {
       class: {
         th: 'text-right',
         td: 'text-right font-medium'
       }
-    },
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue('amount'))
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(amount)
     }
   }
 ]
 
-const globalFilter = ref('45')
+await kafkaStore.fetchTopics()
+
+const data = computed(() => kafkaStore.topics)
+
+const preferredLeaderColor = (percent: number) =>
+  percent === 100 ? 'success' : percent > 0 ? 'warning' : 'error'
+
+const columns: TableColumn<TopicSummary>[] = [
+  {
+    accessorKey: 'topic',
+    header: 'Topic',
+    cell: ({ row }) => {
+      const topic = row.getValue<string>('topic')
+      return h(
+        'button',
+        {
+          class: 'text-primary cursor-pointer hover:underline',
+          type: 'button',
+          onClick: () => kafkaStore.getTopic(topic)
+        },
+        topic
+      )
+    }
+  },
+  {
+    accessorKey: 'partitions',
+    header: 'Partitions',
+    meta: {
+      class: {
+        th: 'text-right',
+        td: 'text-right font-medium'
+      }
+    }
+  },
+  {
+    accessorKey: 'preferredLeaderPercent',
+    header: '% Preferred',
+    cell: ({ row }) => {
+      const percent = row.getValue<number>('preferredLeaderPercent')
+      return h(
+        UBadge,
+        { variant: 'subtle', color: preferredLeaderColor(percent) },
+        () => `${percent}%`
+      )
+    }
+  },
+  {
+    accessorKey: 'underReplicated',
+    header: '# Under-replicated',
+    cell: ({ row }) => {
+      const count = row.getValue<number>('underReplicated')
+      return h(
+        UBadge,
+        { variant: 'subtle', color: count > 0 ? 'error' : 'success' },
+        () => String(count)
+      )
+    }
+  },
+  {
+    accessorKey: 'customConfigs',
+    header: 'Custom Config',
+    cell: ({ row }) => {
+      const count = row.getValue<number>('customConfigs')
+      return count > 0 ? `${count} config${count > 1 ? 's' : ''}` : '—'
+    }
+  }
+]
+
+const globalFilter = ref('')
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 w-full">
-    <UPageSection class="text-left">
-      <AppLeadingText>Kafka cluster overview </AppLeadingText>
-    </UPageSection>
+  <div class="flex flex-col flex-1 w-full gap-8">
+    <AppLeadingText>Kafka cluster overview</AppLeadingText>
 
-    <AppLeadingText>Topics </AppLeadingText>
+    <UTable
+      :data="overviewRows"
+      :columns="overviewColumns"
+    />
+
+    <AppLeadingText>Topics</AppLeadingText>
     <div class="flex px-4 py-3.5 border-b border-accented">
-      <AppInput
+      <UInput
         v-model="globalFilter"
         class="max-w-sm"
         placeholder="Filter..."
       />
     </div>
     <UTable
-      ref="table"
       v-model:global-filter="globalFilter"
       :data="data"
       :columns="columns"
