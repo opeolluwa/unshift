@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import type { Message } from '../../../bindings/Message'
+import type { Message } from '~/bindings/Message'
 
 const route = useRoute()
 

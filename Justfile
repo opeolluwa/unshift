@@ -22,6 +22,8 @@ cfg:
     else
         echo ".env already exists, skipping"
     fi
+    pnpm install 
+    cd console && pnpm install
 
 [working-directory: "console"]
 run-console: 

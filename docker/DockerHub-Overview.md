@@ -1,11 +1,11 @@
-# Unshift
+# unshift
 
 **Kafka admin UI** — a browser-based console for managing and inspecting your Kafka cluster, like [Kafkadrop](https://github.com/obsidiandynamics/kafdrop), with the added ability to **publish messages** directly from the UI.
 
-|           |                                                           |
-| --------- | --------------------------------------------------------- |
-| **Image** | `opeolluwa/unshift`                                       |
-| **Port**  | `8000`                                                    |
+| | |
+| --- | --- |
+| **Image** | `opeolluwa/unshift` |
+| **Port** | `8000` |
 | **Stack** | Rust (axum + rdkafka) API + Nuxt UI in a single container |
 
 ## Features
@@ -89,21 +89,7 @@ services:
       - internal
 ```
 
-## Development
-
-Unshift depends on the following for
-
-- [Just](https://just.systems)
-- [NodeJs](https://nodejs.org)
-- [Rust](https://rust-lang.org)
-- [Docker](https://www.docker.com)
-- [pnpm](https://pnpm.io/)
-- [cmake](https://cmake.org/)
-
-After cloning the repository, run `just cfg`, this will configure your environment
-Subsequently, run `just dev`
-
-## Notes:
+Notes:
 
 - If your broker service isn't named `kafka`, point `KAFKA_BROKER` at the right name and port (e.g. `broker:29092` for Confluent's `cp-kafka` internal listener).
 - The snippet places `unshift` on an explicit `internal` network; the broker must be on that same network (define it under `networks:` if it isn't already).
@@ -111,27 +97,27 @@ Subsequently, run `just dev`
 
 ## Environment variables
 
-| Variable                 | Required | Default                                       | Description                                                 |
-| ------------------------ | -------- | --------------------------------------------- | ----------------------------------------------------------- |
-| `KAFKA_BROKER`           | Yes      | —                                             | Comma-separated Kafka bootstrap servers, e.g. `kafka:29092` |
-| `PORT`                   | No       | `8000`                                        | Port the API and UI listen on                               |
-| `ENVIRONMENT`            | No       | `development`                                 | `development`/`dev` or `production`/`prod`                  |
-| `ALLOWED_ORIGINS`        | No       | `http://localhost:3000,http://localhost:8000` | Comma-separated CORS allowed origins                        |
-| `REQUESTS_TIME_OUT_SECS` | No       | `10`                                          | Request timeout in seconds                                  |
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `KAFKA_BROKER` | Yes | — | Comma-separated Kafka bootstrap servers, e.g. `kafka:29092` |
+| `PORT` | No | `8000` | Port the API and UI listen on |
+| `ENVIRONMENT` | No | `development` | `development`/`dev` or `production`/`prod` |
+| `ALLOWED_ORIGINS` | No | `http://localhost:3000,http://localhost:8000` | Comma-separated CORS allowed origins |
+| `REQUESTS_TIME_OUT_SECS` | No | `10` | Request timeout in seconds |
 
 ## API reference
 
 The UI is backed by a small REST API under `/api`:
 
-| Method | Path                                        | Description                                                   |
-| ------ | ------------------------------------------- | ------------------------------------------------------------- |
-| `GET`  | `/api/health`                               | Health check                                                  |
-| `GET`  | `/api/cluster/overview`                     | Cluster statistics                                            |
-| `GET`  | `/api/topics`                               | List topics                                                   |
-| `POST` | `/api/topics`                               | Create a topic (`name`, `numPartitions`, `replicationFactor`) |
-| `GET`  | `/api/topics/{topicName}`                   | Topic detail and configs                                      |
-| `GET`  | `/api/topics/{topicName}/messages?limit=10` | Read messages                                                 |
-| `POST` | `/api/topics/{topicName}/messages`          | Publish a message (`key`, `payload`)                          |
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/cluster/overview` | Cluster statistics |
+| `GET` | `/api/topics` | List topics |
+| `POST` | `/api/topics` | Create a topic (`name`, `numPartitions`, `replicationFactor`) |
+| `GET` | `/api/topics/{topicName}` | Topic detail and configs |
+| `GET` | `/api/topics/{topicName}/messages?limit=10` | Read messages |
+| `POST` | `/api/topics/{topicName}/messages` | Publish a message (`key`, `payload`) |
 
 Example: publish a message
 
