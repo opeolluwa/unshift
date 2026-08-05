@@ -67,7 +67,7 @@ docker compose up -d
 
 ## Use in an existing Docker Compose project
 
-Add `unshift` as a service to a stack you already run — the container joins the project's default network automatically, so it can reach other services by their service name:
+Add `unshift` as a service to a stack you already run:
 
 ```yaml
 services:
@@ -76,15 +76,23 @@ services:
     ports:
       - "8000:8000"
     environment:
-      KAFKA_BROKER: kafka:9092
+      KAFKA_BROKER: kafka:29092
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - internal
 ```
 
 Notes:
 
 - If your broker service isn't named `kafka`, point `KAFKA_BROKER` at the right name and port (e.g. `broker:29092` for Confluent's `cp-kafka` internal listener).
-- You can place `unshift` under an explicit `networks:` list instead of the default network; the broker must be on that same network.
+- The snippet places `unshift` on an explicit `internal` network; the broker must be on that same network (define it under `networks:` if it isn't already).
 - No extra proxy is required — the UI and API are both served on port `8000`.
 
 ## Environment variables
@@ -128,4 +136,4 @@ curl http://localhost:8000/api/health
 
 ## License
 
-ISC
+MIT

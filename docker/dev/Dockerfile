@@ -14,6 +14,9 @@ RUN set -eux; \
         zlib1g-dev \
         llvm-dev \
         build-essential \
+        cmake \
+        perl \
+        git \
         curl; \
     rm -rf /var/lib/apt/lists/*
 
