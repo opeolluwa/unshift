@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import type { TopicConfig } from '../../bindings/TopicConfig'
+import type { TopicConfig } from '~/bindings/TopicConfig.ts'
 
 const UBadge = resolveComponent('UBadge')
 
