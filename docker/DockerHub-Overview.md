@@ -127,4 +127,5 @@ curl http://localhost:8000/api/health
 ```
 
 ## License
-MIT 
+
+ISC
