@@ -1,16 +1,16 @@
 <script setup lang="ts">
 defineProps<{
-  label?: string
-  name?: string
-  placeholder?: string
-  hint?: string
-  disabled?: boolean
-  min?: number
-  max?: number
-  step?: number
-}>()
+  label?: string;
+  name?: string;
+  placeholder?: string;
+  hint?: string;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+}>();
 
-const model = defineModel<number>()
+const model = defineModel<number>();
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const model = defineModel<number>()
     :ui="{
       error: 'text-red-500 mt-1',
       label: 'text-xs font-medium text-gray-600 dark:text-gray-400',
-      hint: ' mr-auto text-gray-400 dark:text-gray-600 font-normal ml-1'
+      hint: ' mr-auto text-gray-400 dark:text-gray-600 font-normal ml-1',
     }"
   >
     <UInputNumber
@@ -33,11 +33,12 @@ const model = defineModel<number>()
       :max="max"
       :step="step"
       :ui="{ base: 'py-3 pl-4 bg-transparent' }"
+      orientation="vertical"
       :class="[
         'w-full transition-colors',
         error
           ? 'border-red-500 focus-within:border-red-500'
-          : 'border-gray-300 dark:border-gray-600 focus-within:border-black dark:focus-within:border-gray-400'
+          : 'border-gray-300 dark:border-gray-600 focus-within:border-black dark:focus-within:border-gray-400',
       ]"
     />
   </UFormField>

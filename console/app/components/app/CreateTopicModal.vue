@@ -68,60 +68,62 @@ async function submit() {
       </h3>
     </template>
 
-    <UForm
-      :state="formState"
-      :validate="validate"
-      class="flex flex-col gap-4 py-4"
-      @submit="submit"
-    >
-      <AppInput
-        v-model="formState.name"
-        label="Topic name"
-        name="topic-name"
-        placeholder="e.g. orders"
-      />
-
-      <div class="flex gap-4">
-        <AppNumberInput
-          v-model="formState.partitions"
-          label="Partitions"
-          name="partitions"
-          :min="1"
-          class="flex-1"
-        />
-        <AppNumberInput
-          v-model="formState.replicationFactor"
-          label="Replication factor"
-          name="replication-factor"
-          :min="1"
-          class="flex-1"
-        />
-      </div>
-
-      <p
-        v-if="kafkaStore.error"
-        class="text-sm text-red-500"
+    <template #body>
+      <UForm
+        :state="formState"
+        :validate="validate"
+        class="flex flex-col gap-4 py-4"
+        @submit="submit"
       >
-        {{ kafkaStore.error }}
-      </p>
+        <AppInput
+          v-model="formState.name"
+          label="Topic name"
+          name="topic-name"
+          placeholder="e.g. orders"
+        />
 
-      <div class="flex justify-end gap-2 pt-2">
-        <AppButton
-          color="neutral"
-          variant="soft"
-          @click="cancel"
-        >
-          Cancel
-        </AppButton>
+        <div class="flex gap-4">
+          <AppNumberInput
+            v-model="formState.partitions"
+            label="Partitions"
+            name="partitions"
+            :min="1"
+            class="flex-1"
+          />
+          <AppNumberInput
+            v-model="formState.replicationFactor"
+            label="Replication factor"
+            name="replication-factor"
+            :min="1"
+            class="flex-1"
+          />
+        </div>
 
-        <AppButton
-          type="submit"
-          color="primary"
-          :loading="kafkaStore.loading"
+        <p
+          v-if="kafkaStore.error"
+          class="text-sm text-red-500"
         >
-          Create
-        </AppButton>
-      </div>
-    </UForm>
+          {{ kafkaStore.error }}
+        </p>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <UButton
+            color="neutral"
+            variant="soft"
+            @click="cancel"
+          >
+            Cancel
+          </UButton>
+
+          <AppButton
+            type="submit"
+            color="primary"
+            :loading="kafkaStore.loading"
+          >
+            Create
+          </AppButton>
+        </div>
+      </UForm>
+    </template>
   </UModal>
 </template>

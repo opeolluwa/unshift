@@ -201,13 +201,32 @@ async fn retrieve_topic_configs(
     Ok(configs)
 }
 
-pub async fn retrieve_messages(
-    consumer: &BaseConsumer,
-    topic_name: &str,
-    limit: usize,
-) -> Result<Vec<Message>, AppError> {
+/// Overall ceiling for a read, in case the broker keeps handing us records we
+/// never manage to satisfy `limit` with (compacted topics, tombstones).
+const READ_DEADLINE: Duration = Duration::from_secs(5);
+
+/// Once the broker has gone quiet for this long the partitions are drained, so
+/// there is nothing to gain from waiting out `READ_DEADLINE`.
+const READ_IDLE_TIMEOUT: Duration = Duration::from_millis(1500);
+
+pub async fn retrieve_messages(topic_name: &str, limit: usize) -> Result<Vec<Message>, AppError> {
+    let topic_name = topic_name.to_owned();
+
+    // Every rdkafka call below blocks the calling thread. Running them straight
+    // on a Tokio worker parks that worker for the whole read, and enough
+    // concurrent reads park every worker — which stalls unrelated endpoints too.
+    tokio::task::spawn_blocking(move || read_messages(&topic_name, limit))
+        .await
+        .map_err(|err| AppError::KafkaError(err.to_string()))?
+}
+
+fn read_messages(topic_name: &str, limit: usize) -> Result<Vec<Message>, AppError> {
+    // A dedicated consumer per read: `assign`/`unassign` mutate consumer-wide
+    // state, so a shared one lets concurrent reads steal each other's partitions.
+    let consumer = super::connection::create_consumer()?;
+
     let metadata = consumer
-        .fetch_metadata(Some(topic_name), Duration::from_secs(10))
+        .fetch_metadata(Some(topic_name), Duration::from_secs(5))
         .map_err(|err| AppError::KafkaError(err.to_string()))?;
 
     let partitions: Vec<i32> = metadata
@@ -223,24 +242,51 @@ pub async fn retrieve_messages(
         )));
     }
 
+    // Watermarks tell us how many records are actually there, so we can stop as
+    // soon as we have them all instead of polling until the deadline expires.
     let mut assignment = TopicPartitionList::new();
+    let mut available: i64 = 0;
+
     for partition in partitions {
+        let (low, high) = consumer
+            .fetch_watermarks(topic_name, partition, Duration::from_secs(5))
+            .map_err(|err| AppError::KafkaError(err.to_string()))?;
+
+        available += (high - low).max(0);
+
         assignment
             .add_partition(topic_name, partition)
             .set_offset(Offset::Beginning)
             .map_err(|err| AppError::KafkaError(err.to_string()))?;
     }
 
+    let expected = limit.min(available.max(0) as usize);
+
+    if expected == 0 {
+        return Ok(Vec::new());
+    }
+
     consumer
         .assign(&assignment)
         .map_err(|err| AppError::KafkaError(err.to_string()))?;
 
-    let mut messages = Vec::new();
-    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    let mut messages = Vec::with_capacity(expected);
+    let started = std::time::Instant::now();
+    let mut last_record = started;
 
-    while messages.len() < limit && std::time::Instant::now() < deadline {
-        match consumer.poll(Duration::from_millis(200)) {
+    while messages.len() < expected {
+        let now = std::time::Instant::now();
+
+        if now.duration_since(started) >= READ_DEADLINE
+            || now.duration_since(last_record) >= READ_IDLE_TIMEOUT
+        {
+            break;
+        }
+
+        match consumer.poll(Duration::from_millis(100)) {
             Some(Ok(borrowed)) => {
+                last_record = std::time::Instant::now();
+
                 messages.push(Message {
                     key: borrowed
                         .key()
@@ -253,17 +299,10 @@ pub async fn retrieve_messages(
                     offset: borrowed.offset(),
                 });
             }
-            Some(Err(err)) => {
-                let _ = consumer.unassign();
-                return Err(AppError::KafkaError(err.to_string()));
-            }
+            Some(Err(err)) => return Err(AppError::KafkaError(err.to_string())),
             None => {}
         }
     }
-
-    consumer
-        .unassign()
-        .map_err(|err| AppError::KafkaError(err.to_string()))?;
 
     Ok(messages)
 }

@@ -86,14 +86,12 @@ pub struct GetMessagesParams {
 }
 
 pub async fn get_messages(
-    State(state): State<KafkaState>,
     Path(topic_name): Path<String>,
     Query(params): Query<GetMessagesParams>,
 ) -> Result<Json<MessagesResponse>, AppError> {
     let limit = params.limit.unwrap_or(10).min(100);
 
-    let messages: Vec<Message> =
-        utils::retrieve_messages(&state.consumer, &topic_name, limit).await?;
+    let messages: Vec<Message> = utils::retrieve_messages(&topic_name, limit).await?;
 
     Ok(Json(MessagesResponse {
         topic: topic_name,

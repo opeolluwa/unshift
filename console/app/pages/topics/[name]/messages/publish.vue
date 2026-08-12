@@ -70,7 +70,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 w-full gap-6 min-h-[calc(100dvh-4rem)]">
+  <div class="flex flex-col w-full gap-6">
     <UButton
       :to="`/topics/${encodedTopic}`"
       icon="i-lucide-arrow-left"
@@ -87,7 +87,7 @@ async function submit() {
 
     <UForm
       :state="formState"
-      class="flex flex-col gap-4 flex-1 min-h-0"
+      class="flex flex-col gap-4"
       @submit="submit"
     >
       <AppInput
@@ -96,11 +96,10 @@ async function submit() {
         name="key"
         placeholder="Optional message key"
         hint="Leave empty for no key."
-        class="max-w-xl"
       />
 
-      <div class="flex flex-col gap-2 flex-1 min-h-0">
-        <div class="flex items-center justify-between gap-4 w-full max-w-4xl mx-auto">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-4 w-full">
           <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
             Payload
           </span>
@@ -130,7 +129,7 @@ async function submit() {
           </div>
         </div>
 
-        <div class="flex-1 min-h-0 min-h-[20rem] w-full max-w-4xl mx-auto">
+        <div class="h-[45vh] w-full">
           <ClientOnly>
             <AppCodeEditor
               v-model="formState.payload"
@@ -142,7 +141,7 @@ async function submit() {
 
         <p
           v-if="formatError"
-          class="text-sm text-red-500 w-full max-w-4xl mx-auto"
+          class="text-sm text-red-500"
         >
           {{ formatError }}
         </p>
@@ -162,14 +161,14 @@ async function submit() {
         Message published successfully.
       </p>
 
-      <div class="flex justify-end gap-2 pt-2 w-full max-w-4xl mx-auto">
-        <AppButton
+      <div class="flex justify-end gap-2 pt-2 w-full">
+        <UButton
           color="neutral"
           variant="soft"
           @click="reset"
         >
           Reset
-        </AppButton>
+        </UButton>
 
         <AppButton
           type="submit"

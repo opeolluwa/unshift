@@ -8,7 +8,7 @@ const route = useRoute()
 useHead({ title: 'Messages' })
 
 const kafkaStore = useKafkaStore()
-const { messages, loading, error } = storeToRefs(kafkaStore)
+const { messages, error } = storeToRefs(kafkaStore)
 
 const topicName = computed(() => {
   const name = route.params.name
@@ -48,9 +48,24 @@ const columns: TableColumn<Message>[] = [
   }
 ]
 
-const refresh = () => kafkaStore.fetchMessages(topicName.value ?? '')
+// Starts true so the first paint is the skeleton rather than a flash of the
+// "No messages" empty state. Page-local, because the store's `loading` flag is
+// shared by every action.
+const pending = ref(true)
 
-await refresh()
+async function refresh() {
+  pending.value = true
+
+  try {
+    await kafkaStore.fetchMessages(topicName.value ?? '')
+  } finally {
+    pending.value = false
+  }
+}
+
+// Deliberately not a top-level `await`: that makes setup async, so Nuxt holds
+// the route transition until the read resolves and the user sees no loader.
+onMounted(refresh)
 </script>
 
 <template>
@@ -76,20 +91,31 @@ await refresh()
           label="Refresh"
           variant="outline"
           color="neutral"
-          :loading="loading"
+          :loading="pending"
           @click="refresh"
         />
       </div>
 
+      <div
+        v-if="pending"
+        class="flex flex-col gap-2 pt-2"
+      >
+        <USkeleton
+          v-for="row in 5"
+          :key="row"
+          class="h-10 w-full"
+        />
+      </div>
+
       <AppEmptyState
-        v-if="!messages.length && error"
+        v-else-if="error"
         icon="heroicons:exclamation-triangle"
         title="Failed to load messages"
         :description="error"
       />
 
       <AppEmptyState
-        v-else-if="!messages.length && !loading"
+        v-else-if="!messages.length"
         icon="heroicons:inbox"
         title="No messages"
         description="No messages were read from the beginning of this topic."
