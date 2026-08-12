@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import type { TableColumn } from '@nuxt/ui'
+import type { TableColumn, TableRow } from '@nuxt/ui'
 import type { Message } from '~/bindings/Message'
 
 const route = useRoute()
@@ -47,6 +47,14 @@ const columns: TableColumn<Message>[] = [
     cell: ({ row }) => h('div', { class: 'truncate max-w-md font-mono' }, row.getValue('payload'))
   }
 ]
+
+const selectedMessage = ref<Message | null>(null)
+const previewOpen = ref(false)
+
+function previewMessage(_event: Event, row: TableRow<Message>) {
+  selectedMessage.value = row.original
+  previewOpen.value = true
+}
 
 // Starts true so the first paint is the skeleton rather than a flash of the
 // "No messages" empty state. Page-local, because the store's `loading` flag is
@@ -125,7 +133,14 @@ onMounted(refresh)
         v-else
         :data="messages"
         :columns="columns"
+        class="cursor-pointer"
+        @select="previewMessage"
       />
     </div>
+
+    <AppMessagePreview
+      v-model:open="previewOpen"
+      :message="selectedMessage"
+    />
   </div>
 </template>
