@@ -1,5 +1,5 @@
 # Stage 1: Frontend build
-FROM node:22-slim AS frontend
+FROM node:26-slim AS frontend
 RUN corepack enable && corepack prepare pnpm@11.18.0 --activate
 WORKDIR /app
 COPY console/package*.json console/pnpm-lock.yaml console/pnpm-workspace.yaml ./
