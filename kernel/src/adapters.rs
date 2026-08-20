@@ -15,6 +15,15 @@ pub struct AddTopicRequest {
 pub struct PublishMessageRequest {
     pub key: String,
     pub payload: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub headers: Option<Vec<PublishMessageHeader>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct PublishMessageHeader {
+    pub key: String,
+    pub value: Option<String>,
 }
 
 #[derive(Debug, Serialize, TS)]

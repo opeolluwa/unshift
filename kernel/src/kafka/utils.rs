@@ -8,13 +8,14 @@ use rdkafka::{
     },
     client::DefaultClientContext,
     consumer::{BaseConsumer, Consumer},
+    message::{Header, OwnedHeaders},
     metadata::MetadataTopic,
     producer::{FutureProducer, FutureRecord},
     topic_partition_list::{Offset, TopicPartitionList},
 };
 
 use crate::{
-    adapters::{ClusterOverviewResponse, Message, TopicConfig, TopicSummary},
+    adapters::{ClusterOverviewResponse, Message, PublishMessageHeader, TopicConfig, TopicSummary},
     errors::AppError,
 };
 
@@ -312,8 +313,20 @@ pub async fn publish_to_topic(
     topic: &str,
     key: &str,
     payload: &str,
+    headers: &Option<Vec<PublishMessageHeader>>,
 ) -> Result<(), AppError> {
-    let record = FutureRecord::to(topic).key(key).payload(payload);
+    let mut record = FutureRecord::to(topic).key(key).payload(payload);
+
+    if let Some(headers) = headers {
+        let mut owned = OwnedHeaders::new();
+        for h in headers {
+            owned = owned.insert(Header {
+                key: &h.key,
+                value: h.value.as_deref(),
+            });
+        }
+        record = record.headers(owned);
+    }
 
     producer
         .send(record, Duration::from_secs(5))

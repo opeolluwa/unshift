@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PublishMessageRequest } from '../../../../bindings/PublishMessageRequest'
+import type { PublishMessageRequest, PublishMessageHeader } from '../../../../bindings/PublishMessageRequest'
 
 const route = useRoute()
 
@@ -27,13 +27,26 @@ const formState = reactive({
   payload: ''
 })
 
+const headers = ref<PublishMessageHeader[]>([])
+const showHeaders = ref(false)
+
 const payloadLanguage = ref<PayloadLanguage>('auto')
 const published = ref(false)
 const formatError = ref<string | null>(null)
 
+function addHeader() {
+  headers.value.push({ key: '', value: null })
+}
+
+function removeHeader(index: number) {
+  headers.value.splice(index, 1)
+}
+
 function reset() {
   formState.key = ''
   formState.payload = ''
+  headers.value = []
+  showHeaders.value = false
   published.value = false
   formatError.value = null
 }
@@ -54,9 +67,12 @@ function format() {
 }
 
 async function submit() {
+  const nonEmptyHeaders = headers.value.filter(h => h.key.trim() !== '')
+
   const payload: PublishMessageRequest = {
     key: formState.key,
-    payload: formState.payload
+    payload: formState.payload,
+    headers: nonEmptyHeaders.length > 0 ? nonEmptyHeaders : null
   }
 
   await kafkaStore.publishMessage(topicName.value ?? '', payload)
@@ -97,6 +113,70 @@ async function submit() {
         placeholder="Optional message key"
         hint="Leave empty for no key."
       />
+
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <UButton
+            icon="i-lucide-list"
+            label="Headers"
+            size="xs"
+            variant="outline"
+            color="neutral"
+            :trailing-icon="showHeaders ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+            @click="showHeaders = !showHeaders"
+          />
+
+          <span
+            v-if="headers.length > 0"
+            class="text-xs text-muted"
+          >
+            {{ headers.length }}
+          </span>
+        </div>
+
+        <div
+          v-if="showHeaders"
+          class="flex flex-col gap-2 pl-2 border-l-2 border-gray-200 dark:border-gray-700"
+        >
+          <div
+            v-for="(_, index) in headers"
+            :key="index"
+            class="flex items-center gap-2"
+          >
+            <UInput
+              v-model="headers[index].key"
+              placeholder="Key"
+              class="flex-1"
+              :ui="{ base: 'py-2 pl-3 bg-transparent text-sm' }"
+            />
+
+            <UInput
+              v-model="headers[index].value"
+              placeholder="Value (optional)"
+              class="flex-1"
+              :ui="{ base: 'py-2 pl-3 bg-transparent text-sm' }"
+            />
+
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              @click="removeHeader(index)"
+            />
+          </div>
+
+          <UButton
+            icon="i-lucide-plus"
+            label="Add header"
+            size="xs"
+            variant="ghost"
+            color="neutral"
+            class="self-start"
+            @click="addHeader"
+          />
+        </div>
+      </div>
 
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between gap-4 w-full">
