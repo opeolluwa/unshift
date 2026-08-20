@@ -1,6 +1,6 @@
 # Stage 1: Frontend build
 FROM node:26-slim AS frontend
-RUN corepack enable && corepack prepare pnpm@11.18.0 --activate
+RUN npm install -g pnpm@11.18.0
 WORKDIR /app
 COPY console/package*.json console/pnpm-lock.yaml console/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -8,20 +8,21 @@ COPY console/ ./
     RUN pnpm run build
 
 # Stage 2: Rust build
-FROM rust:1.94.0-slim-bookworm AS builder
+FROM rust:1.94-alpine AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    pkg-config \
+RUN apk add --no-cache \
+    build-base \
+    pkgconf \
     cmake \
     perl \
     git \
-    libssl-dev \
-    zlib1g-dev \
-    libcurl4-openssl-dev \
-    clang \
-    libclang-dev \
-    && rm -rf /var/lib/apt/lists/*
+    openssl-dev \
+    openssl-libs-static \
+    zlib-dev \
+    zlib-static \
+    curl-dev \
+    clang-dev \
+    llvm-dev
 
 WORKDIR /app
 COPY kernel/ ./kernel/
@@ -30,12 +31,10 @@ RUN cargo build --release \
     && strip target/release/unshift
 
 # Stage 3: Final image
-FROM debian:bookworm-slim
+FROM alpine:3.21
 
-RUN groupadd -r app && useradd -r -g app -d /app -s /sbin/nologin app \
-    && apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN addgroup -S app && adduser -S -G app -h /app -s /sbin/nologin app \
+    && apk add --no-cache ca-certificates curl
 
 WORKDIR /app
 

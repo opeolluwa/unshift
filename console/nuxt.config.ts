@@ -35,6 +35,12 @@ export default defineNuxtConfig({
     }
   },
 
+  icon: {
+    serverBundle: {
+      collections: ['heroicons', 'lucide']
+    }
+  },
+
   pinia: {
     storesDirs: ['./stores/**']
   }
