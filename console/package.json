@@ -29,18 +29,19 @@
     "@iconify-json/simple-icons": "^1.2.92",
     "@lezer/highlight": "^1.2.3",
     "@nuxt/ui": "^4.10.0",
+    "@opeolluwa/ryder": "github:opeolluwa/ryder#v1.5.3",
     "@pinia/nuxt": "^0.11.2",
     "axios": "^1.19.0",
-    "nuxt": "^4.5.1",
+    "nuxt": "^4.6.0",
     "pinia": "^3.0.3",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@iconify-json/lucide": "^1.2.98",
     "@nuxt/eslint": "^1.16.0",
     "eslint": "^10.8.0",
     "typescript": "^6.0.3",
-    "@iconify-json/heroicons": "^1.2.3",
-    "@iconify-json/lucide": "^1.2.98",
     "vue-tsc": "^3.3.9"
   },
   "packageManager": "pnpm@11.18.0"

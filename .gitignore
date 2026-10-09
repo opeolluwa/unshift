@@ -130,3 +130,11 @@ dist
 .pnp.*
 
 node_modules
+
+
+.DS_Store
+docker/.DS_Store
+kernel/.DS_Store
+kernel/src/.DS_Store
+
+data/

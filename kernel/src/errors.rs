@@ -12,6 +12,8 @@ pub enum AppError {
     KafkaError(String),
     #[error("kafka admin error: {0}")]
     KafkaAdminError(String),
+    #[error("database error: {0}")]
+    DbError(String),
 }
 
 impl axum::response::IntoResponse for AppError {
@@ -20,6 +22,7 @@ impl axum::response::IntoResponse for AppError {
             AppError::KafkaError(_) | AppError::KafkaAdminError(_) => {
                 axum::http::StatusCode::BAD_GATEWAY
             }
+            AppError::DbError(_) => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
             _ => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         };
 

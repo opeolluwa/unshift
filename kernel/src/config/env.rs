@@ -1,4 +1,4 @@
-use std::{str::FromStr, time::Duration};
+use std::{path::PathBuf, str::FromStr, time::Duration};
 
 use serde::{Deserialize, Serialize};
 
@@ -17,6 +17,9 @@ pub struct AppConfig {
 
     #[serde(default = "default_requests_time_out")]
     pub requests_time_out_secs: Duration,
+
+    pub topics_file: PathBuf,
+    pub data_dir: PathBuf,
 }
 
 impl AppConfig {
@@ -42,6 +45,13 @@ impl AppConfig {
                 .collect(),
 
             requests_time_out_secs: Duration::from_secs(requests_time_out),
+
+            topics_file: extract_env::<String>("TOPICS_FILE")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("./topics.yaml")),
+            data_dir: extract_env::<String>("DATA_DIR")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("./data")),
         })
     }
 

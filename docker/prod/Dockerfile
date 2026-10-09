@@ -31,23 +31,25 @@ RUN cargo build --release \
     && strip target/release/unshift
 
 # Stage 3: Final image
-FROM alpine:3.21
+FROM alpine:3.22
 
 RUN addgroup -S app && adduser -S -G app -h /app -s /sbin/nologin app \
-    && apk add --no-cache ca-certificates curl
+    && apk add --no-cache ca-certificates
 
 WORKDIR /app
 
 COPY --from=builder /app/kernel/target/release/unshift ./unshift
 COPY --from=frontend /app/.output/public ./assets
 
-RUN chown -R app:app /app
+RUN mkdir -p /app/data && chown -R app:app /app
 
 USER app
+
+VOLUME ["/app/data"]
 
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD wget -qO /dev/null http://localhost:8000/health || exit 1
 
 CMD ["./unshift"]

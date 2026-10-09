@@ -1,6 +1,34 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+#[derive(Debug, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct SaveMessageRequest {
+    pub label: Option<String>,
+    pub topic: String,
+    pub key: String,
+    pub payload: String,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct SavedMessageResponse {
+    pub id: i64,
+    pub label: Option<String>,
+    pub topic: String,
+    pub key: String,
+    pub payload: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
+pub struct SavedMessagesResponse {
+    pub messages: Vec<SavedMessageResponse>,
+}
+
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
