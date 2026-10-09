@@ -12,8 +12,6 @@ const topicName = computed(() => {
   return Array.isArray(name) ? name[0] : name
 })
 
-const encodedTopic = computed(() => encodeURIComponent(topicName.value ?? ''))
-
 type PayloadLanguage = 'auto' | 'json' | 'yaml'
 
 const languageOptions: { value: PayloadLanguage, label: string }[] = [
@@ -107,49 +105,55 @@ async function deleteSaved(id: number) {
 </script>
 
 <template>
-  <div class="flex flex-col w-full gap-6">
-    <UButton
-      :to="`/topics/${encodedTopic}`"
-      icon="i-lucide-arrow-left"
-      label="Back to topic"
-      variant="subtle"
-      color="neutral"
-      class="self-start"
-    />
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">
+          {{ topicName }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Compose and publish a message
+        </p>
+      </div>
+      <AppTopicTabs :topic-name="topicName ?? ''" />
+    </div>
 
-    <AppPageHeader
-      title="Publish message"
-      :subtitle="topicName ?? ''"
-    />
-
-    <!-- Saved messages panel -->
-    <div
-      v-if="topicSavedMessages.length > 0"
-      class="flex flex-col gap-2"
-    >
-      <button
-        class="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors self-start"
-        @click="showSaved = !showSaved"
-      >
-        <UIcon :name="showSaved ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" />
-        Saved messages ({{ topicSavedMessages.length }})
-      </button>
+    <AppCard v-if="topicSavedMessages.length > 0">
+      <template #header>
+        <button
+          class="flex items-center gap-2 text-sm font-semibold"
+          @click="showSaved = !showSaved"
+        >
+          <UIcon
+            :name="showSaved ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
+            class="size-4"
+          />
+          Saved messages
+          <UBadge
+            variant="subtle"
+            color="neutral"
+            size="xs"
+          >
+            {{ topicSavedMessages.length }}
+          </UBadge>
+        </button>
+      </template>
 
       <div
         v-if="showSaved"
-        class="flex flex-col gap-1 max-h-48 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 p-2"
+        class="flex flex-col gap-1 max-h-48 overflow-y-auto"
       >
         <div
           v-for="msg in topicSavedMessages"
           :key="msg.id"
-          class="flex items-center justify-between gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer group"
+          class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer group transition-colors"
           @click="loadSavedMessage(msg)"
         >
           <div class="flex flex-col gap-0.5 min-w-0">
             <span class="text-sm font-medium truncate">
               {{ msg.key || '(no key)' }}
             </span>
-            <span class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <span class="text-xs text-gray-500 dark:text-gray-400 truncate font-mono">
               {{ msg.payload.slice(0, 80) }}{{ msg.payload.length > 80 ? '...' : '' }}
             </span>
           </div>
@@ -163,119 +167,121 @@ async function deleteSaved(id: number) {
           />
         </div>
       </div>
-    </div>
+    </AppCard>
 
-    <UForm
-      :state="formState"
-      class="flex flex-col gap-4"
-      @submit="submit"
-    >
-      <AppInput
-        v-model="formState.key"
-        label="Key"
-        name="key"
-        placeholder="Optional message key"
-        hint="Leave empty for no key."
-      />
+    <AppCard title="Message">
+      <UForm
+        :state="formState"
+        class="flex flex-col gap-4"
+        @submit="submit"
+      >
+        <AppInput
+          v-model="formState.key"
+          label="Key"
+          name="key"
+          placeholder="Optional message key"
+          hint="Leave empty for no key."
+        />
 
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between gap-4 w-full">
-          <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-            Payload
-          </span>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-4 w-full">
+            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+              Payload
+            </span>
 
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 p-1">
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-0.5 rounded-lg bg-gray-100 dark:bg-white/5 p-0.5">
+                <UButton
+                  v-for="option in languageOptions"
+                  :key="option.value"
+                  size="xs"
+                  :color="payloadLanguage === option.value ? 'primary' : 'neutral'"
+                  :variant="payloadLanguage === option.value ? 'solid' : 'ghost'"
+                  @click="payloadLanguage = option.value"
+                >
+                  {{ option.label }}
+                </UButton>
+              </div>
+
               <UButton
-                v-for="option in languageOptions"
-                :key="option.value"
+                icon="i-lucide-wand-2"
+                label="Format"
                 size="xs"
-                :color="payloadLanguage === option.value ? 'primary' : 'neutral'"
-                :variant="payloadLanguage === option.value ? 'solid' : 'ghost'"
-                @click="payloadLanguage = option.value"
-              >
-                {{ option.label }}
-              </UButton>
+                variant="outline"
+                color="neutral"
+                @click="format"
+              />
             </div>
-
-            <UButton
-              icon="i-lucide-wand-2"
-              label="Format"
-              size="xs"
-              variant="outline"
-              color="neutral"
-              @click="format"
-            />
           </div>
-        </div>
 
-        <div class="h-[45vh] w-full">
-          <ClientOnly>
-            <AppCodeEditor
-              v-model="formState.payload"
-              :language="payloadLanguage"
-              placeholder="Enter a JSON or YAML payload…"
-            />
-          </ClientOnly>
+          <div class="h-[45vh] w-full">
+            <ClientOnly>
+              <AppCodeEditor
+                v-model="formState.payload"
+                :language="payloadLanguage"
+                placeholder="Enter a JSON or YAML payload..."
+              />
+            </ClientOnly>
+          </div>
+
+          <p
+            v-if="formatError"
+            class="text-sm text-red-500"
+          >
+            {{ formatError }}
+          </p>
         </div>
 
         <p
-          v-if="formatError"
+          v-if="kafkaStore.error"
           class="text-sm text-red-500"
         >
-          {{ formatError }}
+          {{ kafkaStore.error }}
         </p>
-      </div>
 
-      <p
-        v-if="kafkaStore.error"
-        class="text-sm text-red-500"
-      >
-        {{ kafkaStore.error }}
-      </p>
-
-      <p
-        v-else-if="published"
-        class="text-sm text-green-600 dark:text-green-400"
-      >
-        Message published successfully.
-      </p>
-
-      <p
-        v-else-if="saved"
-        class="text-sm text-green-600 dark:text-green-400"
-      >
-        Message saved.
-      </p>
-
-      <div class="flex justify-end gap-2 pt-2 w-full">
-        <UButton
-          color="neutral"
-          variant="soft"
-          @click="reset"
+        <p
+          v-else-if="published"
+          class="text-sm text-green-600 dark:text-green-400"
         >
-          Reset
-        </UButton>
+          Message published successfully.
+        </p>
 
-        <UButton
-          icon="i-lucide-bookmark"
-          color="neutral"
-          variant="outline"
-          :disabled="!formState.payload.trim()"
-          @click="saveCurrentMessage"
+        <p
+          v-else-if="saved"
+          class="text-sm text-green-600 dark:text-green-400"
         >
-          Save
-        </UButton>
+          Message saved.
+        </p>
 
-        <AppButton
-          type="submit"
-          color="primary"
-          icon="i-lucide-send"
-          :loading="kafkaStore.loading"
-        >
-          Publish
-        </AppButton>
-      </div>
-    </UForm>
+        <div class="flex justify-end gap-2 pt-2 w-full">
+          <UButton
+            color="neutral"
+            variant="soft"
+            @click="reset"
+          >
+            Reset
+          </UButton>
+
+          <UButton
+            icon="i-lucide-bookmark"
+            color="neutral"
+            variant="outline"
+            :disabled="!formState.payload.trim()"
+            @click="saveCurrentMessage"
+          >
+            Save
+          </UButton>
+
+          <AppButton
+            type="submit"
+            color="primary"
+            icon="i-lucide-send"
+            :loading="kafkaStore.loading"
+          >
+            Publish
+          </AppButton>
+        </div>
+      </UForm>
+    </AppCard>
   </div>
 </template>
