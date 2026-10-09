@@ -83,7 +83,7 @@ services:
       kafka:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -122,6 +122,11 @@ Subsequently, run `just dev`
 | `REQUESTS_TIME_OUT_SECS` | No       | `10`                                          | Request timeout in seconds                                         |
 | `TOPICS_FILE`            | No       | `./topics.yaml`                               | YAML file of topics to seed at startup                             |
 | `DATA_DIR`               | No       | `./data`                                      | Directory for the SQLite database backing saved messages           |
+
+> **Docker:** both paths are relative to the container workdir (`/app`).
+> Bind-mount your topics file and use absolute paths, keep `DATA_DIR` on the
+> `/app/data` volume, and never point it at a path that already exists as a
+> file — startup then fails with `failed to create data dir: File exists (os error 17)`.
 
 ## API reference
 

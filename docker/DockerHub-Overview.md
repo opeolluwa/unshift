@@ -81,7 +81,7 @@ services:
       kafka:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -102,8 +102,17 @@ Notes:
 | `KAFKA_BROKER` | Yes | — | Comma-separated Kafka bootstrap servers, e.g. `kafka:29092` |
 | `PORT` | No | `8000` | Port the API and UI listen on |
 | `ENVIRONMENT` | No | `development` | `development`/`dev` or `production`/`prod` |
-| `ALLOWED_ORIGINS` | No | `http://localhost:3000,http://localhost:8000` | Comma-separated CORS allowed origins |
+| `ALLOWED_ORIGINS` | No | `http://localhost:3000,http://localhost:5173` | Comma-separated CORS allowed origins |
 | `REQUESTS_TIME_OUT_SECS` | No | `10` | Request timeout in seconds |
+| `TOPICS_FILE` | No | `./topics.yaml` | YAML file of topics to seed at startup |
+| `DATA_DIR` | No | `./data` | Directory for the SQLite database backing saved messages |
+
+Relative paths (`TOPICS_FILE`, `DATA_DIR`) resolve against the container
+workdir (`/app` in the image). In Docker, use absolute paths, bind-mount a
+topics file (e.g. `- ./kafka-topics.yaml:/app/kafka-topics.yaml:ro`) and put
+`DATA_DIR` on a volume (the image declares one at `/app/data`). `DATA_DIR`
+must not point at a path that already exists as a *file* — the container
+fails at startup with `failed to create data dir: File exists (os error 17)`.
 
 ## API reference
 
