@@ -100,6 +100,10 @@ dist
 # vuepress build output
 .vuepress/dist
 
+# vitepress cache and build output
+docs/.vitepress/cache
+docs/.vitepress/dist
+
 # vuepress v2.x temp and cache directory
 .temp
 .cache
@@ -130,3 +134,11 @@ dist
 .pnp.*
 
 node_modules
+
+
+.DS_Store
+docker/.DS_Store
+kernel/.DS_Store
+kernel/src/.DS_Store
+
+data/

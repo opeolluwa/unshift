@@ -8,8 +8,10 @@ use axum::{
 use crate::{
     adapters::{
         AddTopicRequest, ClusterOverviewResponse, CreateTopicResponse, Message, MessagesResponse,
-        PublishMessageRequest, PublishResponse, TopicSummary, TopicsResponse,
+        PublishMessageRequest, PublishResponse, SaveMessageRequest, SavedMessageResponse,
+        SavedMessagesResponse, TopicSummary, TopicsResponse,
     },
+    db::Db,
     errors::AppError,
     kafka::{connection::KafkaState, utils},
 };
@@ -97,4 +99,43 @@ pub async fn get_messages(
         topic: topic_name,
         messages,
     }))
+}
+
+pub async fn list_saved_messages(
+    State(db): State<Db>,
+) -> Result<Json<SavedMessagesResponse>, AppError> {
+    let messages = db.list()?.into_iter().map(|m| SavedMessageResponse {
+        id: m.id,
+        label: m.label,
+        topic: m.topic,
+        key: m.key,
+        payload: m.payload,
+        created_at: m.created_at,
+    }).collect();
+
+    Ok(Json(SavedMessagesResponse { messages }))
+}
+
+pub async fn save_message(
+    State(db): State<Db>,
+    Json(body): Json<SaveMessageRequest>,
+) -> Result<Json<SavedMessageResponse>, AppError> {
+    let saved = db.insert(body.label.as_deref(), &body.topic, &body.key, &body.payload)?;
+
+    Ok(Json(SavedMessageResponse {
+        id: saved.id,
+        label: saved.label,
+        topic: saved.topic,
+        key: saved.key,
+        payload: saved.payload,
+        created_at: saved.created_at,
+    }))
+}
+
+pub async fn delete_saved_message(
+    State(db): State<Db>,
+    Path(id): Path<i64>,
+) -> Result<StatusCode, AppError> {
+    db.delete(id)?;
+    Ok(StatusCode::NO_CONTENT)
 }

@@ -5,6 +5,9 @@ import type { Message } from '../bindings/Message'
 import type { MessagesResponse } from '../bindings/MessagesResponse'
 import type { PublishMessageRequest } from '../bindings/PublishMessageRequest'
 import type { PublishResponse } from '../bindings/PublishResponse'
+import type { SaveMessageRequest } from '../bindings/SaveMessageRequest'
+import type { SavedMessageResponse } from '../bindings/SavedMessageResponse'
+import type { SavedMessagesResponse } from '../bindings/SavedMessagesResponse'
 import type { TopicSummary } from '../bindings/TopicSummary'
 import type { TopicsResponse } from '../bindings/TopicsResponse'
 
@@ -14,6 +17,7 @@ export const useKafkaStore = defineStore('kafka', {
     topics: [] as TopicSummary[],
     topic: null as TopicSummary | null,
     messages: [] as Message[],
+    savedMessages: [] as SavedMessageResponse[],
     loading: false,
     error: null as string | null
   }),
@@ -107,6 +111,36 @@ export const useKafkaStore = defineStore('kafka', {
         this.error = (err as Error).message
       } finally {
         this.loading = false
+      }
+    },
+
+    async fetchSavedMessages() {
+      try {
+        const { $api } = useNuxtApp()
+        const { data } = await $api.get<SavedMessagesResponse>('/saved-messages')
+        this.savedMessages = data.messages
+      } catch (err) {
+        this.error = (err as Error).message
+      }
+    },
+
+    async saveMessage(payload: SaveMessageRequest) {
+      try {
+        const { $api } = useNuxtApp()
+        const { data } = await $api.post<SavedMessageResponse>('/saved-messages', payload)
+        this.savedMessages.unshift(data)
+      } catch (err) {
+        this.error = (err as Error).message
+      }
+    },
+
+    async deleteSavedMessage(id: number) {
+      try {
+        const { $api } = useNuxtApp()
+        await $api.delete(`/saved-messages/${id}`)
+        this.savedMessages = this.savedMessages.filter(m => m.id !== id)
+      } catch (err) {
+        this.error = (err as Error).message
       }
     }
   }

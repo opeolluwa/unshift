@@ -2,6 +2,8 @@
 
 **Kafka admin UI** — a browser-based console for managing and inspecting your Kafka cluster, like [Kafkadrop](https://github.com/obsidiandynamics/kafdrop), with the added ability to **publish messages** directly from the UI.
 
+> Full documentation lives in [`docs/`](./docs) (built with VitePress): see the [getting started guide](./docs/guide/getting-started.md), [configuration](./docs/guide/configuration.md) and [REST API reference](./docs/api/index.md).
+
 |           |                                                           |
 | --------- | --------------------------------------------------------- |
 | **Image** | `opeolluwa/unshift`                                       |
@@ -111,13 +113,15 @@ Subsequently, run `just dev`
 
 ## Environment variables
 
-| Variable                 | Required | Default                                       | Description                                                 |
-| ------------------------ | -------- | --------------------------------------------- | ----------------------------------------------------------- |
-| `KAFKA_BROKER`           | Yes      | —                                             | Comma-separated Kafka bootstrap servers, e.g. `kafka:29092` |
-| `PORT`                   | No       | `8000`                                        | Port the API and UI listen on                               |
-| `ENVIRONMENT`            | No       | `development`                                 | `development`/`dev` or `production`/`prod`                  |
-| `ALLOWED_ORIGINS`        | No       | `http://localhost:3000,http://localhost:8000` | Comma-separated CORS allowed origins                        |
-| `REQUESTS_TIME_OUT_SECS` | No       | `10`                                          | Request timeout in seconds                                  |
+| Variable                 | Required | Default                                       | Description                                                        |
+| ------------------------ | -------- | --------------------------------------------- | ------------------------------------------------------------------ |
+| `KAFKA_BROKER`           | Yes      | —                                             | Comma-separated Kafka bootstrap servers, e.g. `kafka:29092`        |
+| `PORT`                   | No       | `8000`                                        | Port the API and UI listen on                                      |
+| `ENVIRONMENT`            | No       | `development`                                 | `development`/`dev` or `production`/`prod`; controls log level     |
+| `ALLOWED_ORIGINS`        | No       | `http://localhost:3000,http://localhost:5173` | Comma-separated CORS allowed origins                               |
+| `REQUESTS_TIME_OUT_SECS` | No       | `10`                                          | Request timeout in seconds                                         |
+| `TOPICS_FILE`            | No       | `./topics.yaml`                               | YAML file of topics to seed at startup                             |
+| `DATA_DIR`               | No       | `./data`                                      | Directory for the SQLite database backing saved messages           |
 
 ## API reference
 
@@ -132,6 +136,9 @@ The UI is backed by a small REST API under `/api`:
 | `GET`  | `/api/topics/{topicName}`                   | Topic detail and configs                                      |
 | `GET`  | `/api/topics/{topicName}/messages?limit=10` | Read messages                                                 |
 | `POST` | `/api/topics/{topicName}/messages`          | Publish a message (`key`, `payload`)                          |
+| `GET`  | `/api/saved-messages`                       | List saved message templates                                  |
+| `POST` | `/api/saved-messages`                       | Save a message template                                       |
+| `DELETE` | `/api/saved-messages/{id}`                | Delete a saved message (`204`)                                |
 
 Example: publish a message
 
