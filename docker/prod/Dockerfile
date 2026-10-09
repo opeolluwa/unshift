@@ -33,7 +33,8 @@ RUN cargo build --release \
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 RUN apk add --no-cache ca-certificates wget \
-    && adduser --system --home /app --shell /sbin/nologin app
+    && addgroup --system app \
+    && adduser --system --home /app --ingroup app --shell /sbin/nologin app
 
 WORKDIR /app
 
