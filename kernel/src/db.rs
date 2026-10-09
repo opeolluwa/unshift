@@ -12,8 +12,10 @@ pub struct Db {
 
 impl Db {
     pub fn open(data_dir: &Path) -> Result<Self, AppError> {
-        std::fs::create_dir_all(data_dir)
-            .map_err(|err| AppError::DbError(format!("failed to create data dir: {err}")))?;
+        if !data_dir.is_dir() {
+            std::fs::create_dir_all(data_dir)
+                .map_err(|err| AppError::DbError(format!("failed to create data dir: {err}")))?;
+        }
 
         let db_path = data_dir.join("unshift.db");
         let conn = Connection::open(&db_path)
