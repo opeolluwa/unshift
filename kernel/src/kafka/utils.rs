@@ -29,6 +29,7 @@ pub async fn retrieve_topics(
     let names: Vec<String> = metadata
         .topics()
         .iter()
+        .filter(|topic| !topic.name().starts_with("__"))
         .map(|topic| topic.name().to_string())
         .collect();
 
@@ -37,6 +38,7 @@ pub async fn retrieve_topics(
     let topics = metadata
         .topics()
         .iter()
+        .filter(|topic| !topic.name().starts_with("__"))
         .map(|topic| {
             let topic_configs = configs.get(topic.name()).cloned().unwrap_or_default();
             build_topic_summary(topic, &topic_configs)
@@ -59,7 +61,7 @@ pub async fn retrieve_cluster_overview(
     let mut total_topics = 0usize;
 
     for topic in metadata.topics() {
-        if topic.name().contains("__") {
+        if topic.name().starts_with("__") {
             continue;
         }
 
