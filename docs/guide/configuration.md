@@ -50,6 +50,24 @@ database at `DATA_DIR/unshift.db`. The table is created on first boot. In the
 production image `DATA_DIR` is `/app/data`, exposed as a volume so saved
 messages survive container restarts.
 
+## Running in Docker
+
+`TOPICS_FILE` and `DATA_DIR` are resolved against the process working
+directory — `/app` in the production image. Relative values therefore behave
+differently inside a container than on the host:
+
+- Use absolute paths in `docker run`/compose (`DATA_DIR: /app/data`).
+- Bind-mount your topics file into the container and point `TOPICS_FILE` at
+  the mounted path, e.g. `- ./kafka-topics.yaml:/app/kafka-topics.yaml:ro`
+  with `TOPICS_FILE: /app/kafka-topics.yaml`. A missing file is skipped, so
+  an unmounted path silently disables seeding.
+- Keep `DATA_DIR` on the image's `/app/data` volume so saved messages persist
+  across container recreation.
+
+`DATA_DIR` must not collide with an existing file in the workdir (for
+example, the server binary itself is `/app/unshift`). If it does, startup
+fails with `failed to create data dir: File exists (os error 17)`.
+
 ## CORS
 
 Only origins listed in `ALLOWED_ORIGINS` receive CORS headers. Add your console
