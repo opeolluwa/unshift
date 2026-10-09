@@ -5,7 +5,7 @@ WORKDIR /app
 COPY console/package*.json console/pnpm-lock.yaml console/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY console/ ./
-    RUN pnpm run build
+RUN pnpm run build
 
 # Stage 2: Rust build
 FROM rust:1.94-slim-bookworm AS builder
@@ -30,13 +30,10 @@ RUN cargo build --release \
     && strip target/release/unshift
 
 # Stage 3: Final image
-FROM debian:bookworm-slim
+FROM cgr.dev/chainguard/wolfi-base:latest
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --create-home --home-dir /app --shell /sbin/nologin app
+RUN apk add --no-cache ca-certificates wget \
+    && adduser --system --home /app --shell /sbin/nologin app
 
 WORKDIR /app
 
