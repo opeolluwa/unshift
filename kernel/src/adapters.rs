@@ -88,11 +88,19 @@ pub struct PublishResponse {
 
 #[derive(Debug, Serialize, TS)]
 #[ts(export)]
+pub struct MessageHeader {
+    pub key: String,
+    pub value: Option<String>,
+}
+
+#[derive(Debug, Serialize, TS)]
+#[ts(export)]
 pub struct Message {
     pub key: Option<String>,
     pub payload: String,
     pub partition: i32,
     pub offset: i64,
+    pub headers: Vec<MessageHeader>,
 }
 
 #[derive(Debug, Serialize, TS)]

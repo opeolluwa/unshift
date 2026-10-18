@@ -33,12 +33,9 @@ async function refreshMessages() {
 
 onMounted(refreshMessages)
 
-const selectedMessage = ref<Message | null>(null)
-const previewOpen = ref(false)
-
 function previewMessage(_event: Event, row: TableRow<Message>) {
-  selectedMessage.value = row.original
-  previewOpen.value = true
+  kafkaStore.selectMessage(row.original)
+  navigateTo(`/topics/${encodedTopic.value}/messages/view`)
 }
 
 const messageColumns: TableColumn<Message>[] = [
@@ -264,9 +261,5 @@ const configColumns: TableColumn<TopicConfig>[] = [
       Loading topic...
     </div>
 
-    <AppMessagePreview
-      v-model:open="previewOpen"
-      :message="selectedMessage"
-    />
   </div>
 </template>

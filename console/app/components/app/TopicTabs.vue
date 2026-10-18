@@ -16,7 +16,7 @@ const tabs = computed(() => [
 const activeIndex = computed(() => {
   const path = route.path
   if (path.endsWith('/publish')) return 2
-  if (path.endsWith('/messages')) return 1
+  if (path.includes('/messages')) return 1
   return 0
 })
 </script>

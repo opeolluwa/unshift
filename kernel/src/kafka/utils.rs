@@ -8,13 +8,14 @@ use rdkafka::{
     },
     client::DefaultClientContext,
     consumer::{BaseConsumer, Consumer},
+    message::Headers,
     metadata::MetadataTopic,
     producer::{FutureProducer, FutureRecord},
     topic_partition_list::{Offset, TopicPartitionList},
 };
 
 use crate::{
-    adapters::{ClusterOverviewResponse, Message, TopicConfig, TopicSummary},
+    adapters::{ClusterOverviewResponse, Message, MessageHeader, TopicConfig, TopicSummary},
     errors::AppError,
 };
 
@@ -299,6 +300,21 @@ fn read_messages(topic_name: &str, limit: usize) -> Result<Vec<Message>, AppErro
                         .unwrap_or_default(),
                     partition: borrowed.partition(),
                     offset: borrowed.offset(),
+                    headers: borrowed
+                        .headers()
+                        .map(|hdrs| {
+                            (0..hdrs.count())
+                                .map(|i| {
+                                    let h = hdrs.get(i);
+                                    MessageHeader {
+                                        key: h.key.to_string(),
+                                        value: h.value
+                                            .map(|v| String::from_utf8_lossy(v).to_string()),
+                                    }
+                                })
+                                .collect()
+                        })
+                        .unwrap_or_default(),
                 });
             }
             Some(Err(err)) => return Err(AppError::KafkaError(err.to_string())),
