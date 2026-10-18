@@ -126,6 +126,5 @@ onMounted(refresh)
         @select="previewMessage"
       />
     </AppCard>
-
   </div>
 </template>

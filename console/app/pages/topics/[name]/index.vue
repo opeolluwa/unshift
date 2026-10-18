@@ -260,6 +260,5 @@ const configColumns: TableColumn<TopicConfig>[] = [
     >
       Loading topic...
     </div>
-
   </div>
 </template>
