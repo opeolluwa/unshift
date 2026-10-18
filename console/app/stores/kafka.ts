@@ -17,6 +17,7 @@ export const useKafkaStore = defineStore('kafka', {
     topics: [] as TopicSummary[],
     topic: null as TopicSummary | null,
     messages: [] as Message[],
+    selectedMessage: null as Message | null,
     savedMessages: [] as SavedMessageResponse[],
     loading: false,
     error: null as string | null
@@ -81,6 +82,14 @@ export const useKafkaStore = defineStore('kafka', {
       } finally {
         this.loading = false
       }
+    },
+
+    selectMessage(message: Message) {
+      this.selectedMessage = message
+    },
+
+    clearSelectedMessage() {
+      this.selectedMessage = null
     },
 
     async fetchMessages(topicName: string, limit = 10) {

@@ -1,7 +1,7 @@
 {
   "name": "@unshift/console",
   "description": "Kafka Event Producer",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -25,6 +25,7 @@
     "@domternal/core": "^0.14.0",
     "@domternal/theme": "^0.14.0",
     "@domternal/vue": "^0.14.0",
+    "@iconify-json/heroicons": "^1.2.3",
     "@iconify-json/lucide": "^1.2.121",
     "@iconify-json/simple-icons": "^1.2.92",
     "@lezer/highlight": "^1.2.3",
@@ -37,8 +38,6 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@iconify-json/heroicons": "^1.2.3",
-    "@iconify-json/lucide": "^1.2.98",
     "@nuxt/eslint": "^1.16.0",
     "eslint": "^10.8.0",
     "typescript": "^6.0.3",

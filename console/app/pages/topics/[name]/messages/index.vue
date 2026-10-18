@@ -46,12 +46,9 @@ const columns: TableColumn<Message>[] = [
   }
 ]
 
-const selectedMessage = ref<Message | null>(null)
-const previewOpen = ref(false)
-
 function previewMessage(_event: Event, row: TableRow<Message>) {
-  selectedMessage.value = row.original
-  previewOpen.value = true
+  kafkaStore.selectMessage(row.original)
+  navigateTo(`/topics/${encodeURIComponent(topicName.value ?? '')}/messages/view`)
 }
 
 const pending = ref(true)
@@ -129,10 +126,5 @@ onMounted(refresh)
         @select="previewMessage"
       />
     </AppCard>
-
-    <AppMessagePreview
-      v-model:open="previewOpen"
-      :message="selectedMessage"
-    />
   </div>
 </template>
