@@ -39,7 +39,7 @@ dev:
     pnpm exec concurrently --names console,kernel --prefix-colors blue,red "just run-console" "just run-kernel"
 
 [script]
-release type:
+release type="":
     ./scripts/release.sh {{type}}
 
 
