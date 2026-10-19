@@ -89,13 +89,22 @@ const configColumns: TableColumn<TopicConfig>[] = [
 <template>
   <div class="flex flex-col gap-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">
-          {{ topicName }}
-        </h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Topic overview and configuration
-        </p>
+      <div class="flex items-center gap-3">
+        <UButton
+          icon="i-lucide-arrow-left"
+          size="sm"
+          variant="ghost"
+          color="neutral"
+          to="/"
+        />
+        <div>
+          <h1 class="text-2xl font-bold">
+            {{ topicName }}
+          </h1>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Topic overview and configuration
+          </p>
+        </div>
       </div>
       <AppTopicTabs :topic-name="topicName ?? ''" />
     </div>

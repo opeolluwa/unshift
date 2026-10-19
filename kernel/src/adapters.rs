@@ -43,6 +43,7 @@ pub struct AddTopicRequest {
 pub struct PublishMessageRequest {
     pub key: String,
     pub payload: String,
+    pub headers: Option<Vec<MessageHeader>>,
 }
 
 #[derive(Debug, Serialize, TS)]
@@ -86,7 +87,7 @@ pub struct PublishResponse {
     pub status: String,
 }
 
-#[derive(Debug, Serialize, TS)]
+#[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct MessageHeader {
     pub key: String,

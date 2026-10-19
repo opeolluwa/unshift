@@ -8,7 +8,7 @@ use rdkafka::{
     },
     client::DefaultClientContext,
     consumer::{BaseConsumer, Consumer},
-    message::Headers,
+    message::{Headers, OwnedHeaders},
     metadata::MetadataTopic,
     producer::{FutureProducer, FutureRecord},
     topic_partition_list::{Offset, TopicPartitionList},
@@ -330,8 +330,22 @@ pub async fn publish_to_topic(
     topic: &str,
     key: &str,
     payload: &str,
+    headers: Option<&[MessageHeader]>,
 ) -> Result<(), AppError> {
-    let record = FutureRecord::to(topic).key(key).payload(payload);
+    let mut record = FutureRecord::to(topic).key(key).payload(payload);
+
+    let owned_headers = headers.map(|hdrs| {
+        hdrs.iter().fold(OwnedHeaders::new(), |acc, h| {
+            acc.insert(rdkafka::message::Header {
+                key: &h.key,
+                value: h.value.as_deref(),
+            })
+        })
+    });
+
+    if let Some(ref h) = owned_headers {
+        record = record.headers(h.clone());
+    }
 
     producer
         .send(record, Duration::from_secs(5))

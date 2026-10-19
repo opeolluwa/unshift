@@ -74,7 +74,7 @@ pub async fn publish_message(
     Path(topic_name): Path<String>,
     Json(body): Json<PublishMessageRequest>,
 ) -> Result<Json<PublishResponse>, AppError> {
-    utils::publish_to_topic(&state.producer, &topic_name, &body.key, &body.payload).await?;
+    utils::publish_to_topic(&state.producer, &topic_name, &body.key, &body.payload, body.headers.as_deref()).await?;
 
     Ok(Json(PublishResponse {
         topic: topic_name,
