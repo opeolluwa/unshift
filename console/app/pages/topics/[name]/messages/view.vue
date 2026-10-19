@@ -128,6 +128,7 @@ async function copyToClipboard(target: CopyTarget) {
           partition: message.value.partition,
           offset: message.value.offset,
           key: message.value.key,
+          timestamp: message.value.timestamp,
           headers: Object.fromEntries(message.value.headers.map(h => [h.key, h.value])),
           payload: message.value.payload
         },
@@ -173,6 +174,7 @@ onBeforeUnmount(() => clearTimeout(copyTimeout))
           </h1>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Partition {{ message.partition }} · Offset {{ message.offset }}
+            <template v-if="message.timestamp != null"> · {{ new Date(message.timestamp).toLocaleString() }}</template>
           </p>
         </div>
       </div>
@@ -191,7 +193,7 @@ onBeforeUnmount(() => clearTimeout(copyTimeout))
         />
       </template>
 
-      <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div class="flex flex-col gap-1">
           <dt class="text-xs uppercase tracking-wide text-muted">
             Partition
@@ -210,12 +212,21 @@ onBeforeUnmount(() => clearTimeout(copyTimeout))
           </dd>
         </div>
 
-        <div class="col-span-2 sm:col-span-1 flex flex-col gap-1">
+        <div class="flex flex-col gap-1">
           <dt class="text-xs uppercase tracking-wide text-muted">
             Key
           </dt>
           <dd class="font-mono text-sm break-all">
             {{ message.key ?? '—' }}
+          </dd>
+        </div>
+
+        <div class="col-span-2 sm:col-span-1 flex flex-col gap-1">
+          <dt class="text-xs uppercase tracking-wide text-muted">
+            Timestamp
+          </dt>
+          <dd class="font-mono text-sm whitespace-nowrap">
+            {{ message.timestamp != null ? new Date(message.timestamp).toLocaleString() : '—' }}
           </dd>
         </div>
       </dl>

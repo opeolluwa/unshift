@@ -300,6 +300,7 @@ fn read_messages(topic_name: &str, limit: usize) -> Result<Vec<Message>, AppErro
                         .unwrap_or_default(),
                     partition: borrowed.partition(),
                     offset: borrowed.offset(),
+                    timestamp: borrowed.timestamp().to_millis(),
                     headers: borrowed
                         .headers()
                         .map(|hdrs| {

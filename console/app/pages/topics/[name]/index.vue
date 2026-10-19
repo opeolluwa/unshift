@@ -55,6 +55,19 @@ const messageColumns: TableColumn<Message>[] = [
     cell: ({ row }) => row.getValue('key') ?? '—'
   },
   {
+    accessorKey: 'timestamp',
+    header: 'Timestamp',
+    cell: ({ row }) => {
+      const ts = row.getValue<number | null>('timestamp')
+      return ts != null ? new Date(ts).toLocaleString() : '—'
+    },
+    meta: {
+      class: {
+        td: 'text-sm tabular-nums whitespace-nowrap'
+      }
+    }
+  },
+  {
     accessorKey: 'payload',
     header: 'Payload',
     cell: ({ row }) => h('div', { class: 'truncate max-w-md font-mono text-xs' }, row.getValue('payload'))
