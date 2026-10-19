@@ -174,7 +174,9 @@ onBeforeUnmount(() => clearTimeout(copyTimeout))
           </h1>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Partition {{ message.partition }} · Offset {{ message.offset }}
-            <template v-if="message.timestamp != null"> · {{ new Date(message.timestamp).toLocaleString() }}</template>
+            <template v-if="message.timestamp != null">
+              · {{ new Date(message.timestamp).toLocaleString() }}
+            </template>
           </p>
         </div>
       </div>
