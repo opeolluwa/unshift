@@ -2,12 +2,6 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', '@pinia/nuxt'],
 
-  runtimeConfig: {
-    public: {
-      apiBase: '/api'
-    }
-  },
-
   devtools: {
     enabled: true
   },
@@ -25,6 +19,12 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+
+  runtimeConfig: {
+    public: {
+      apiBase: '/api'
+    }
+  },
 
   routeRules: {
     '/': { prerender: true }
