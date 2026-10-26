@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', '@pinia/nuxt'],
 
+  runtimeConfig: {
+    public: {
+      apiBase: '/api'
+    }
+  },
+
   devtools: {
     enabled: true
   },
